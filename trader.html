@@ -275,6 +275,125 @@
  .chart-bar.up { background: #34a853; }
  .chart-bar.down { background: #ea4335; }
 
+ /* Trader Cards */
+ .trader-card {
+ background: var(--gray-1);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 20px;
+ transition: border-color 0.2s, transform 0.2s;
+ }
+
+ .trader-card:hover {
+ border-color: var(--accent-border);
+ transform: translateY(-4px);
+ }
+
+ .card-top {
+ display: flex;
+ justify-content: space-between;
+ align-items: flex-start;
+ margin-bottom: 16px;
+ }
+
+ .symbol-pnl {
+ flex: 1;
+ }
+
+ .symbol-name {
+ font-family: 'DM Mono', monospace;
+ font-size: 16px;
+ font-weight: 500;
+ color: var(--white);
+ margin-bottom: 8px;
+ }
+
+ .verify-icon {
+ color: var(--accent);
+ font-size: 12px;
+ margin-left: 4px;
+ }
+
+ .pnl-value {
+ font-family: 'DM Mono', monospace;
+ font-size: 24px;
+ font-weight: 500;
+ }
+
+ .pnl-positive { color: #2ebd85; }
+ .pnl-negative { color: #f6465d; }
+
+ .chart-area {
+ width: 80px;
+ height: 40px;
+ }
+
+ .trader-card .data-grid {
+ display: grid;
+ grid-template-columns: repeat(2, 1fr);
+ gap: 12px;
+ margin: 16px 0;
+ }
+
+ .data-item {
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+ }
+
+ .data-item .label {
+ font-size: 11px;
+ color: var(--gray-text);
+ font-family: 'DM Mono', monospace;
+ }
+
+ .data-item .val {
+ font-size: 14px;
+ color: var(--white);
+ font-family: 'DM Mono', monospace;
+ }
+
+ .side-tag {
+ display: inline-block;
+ padding: 4px 10px;
+ border-radius: 4px;
+ font-size: 11px;
+ font-weight: 500;
+ font-family: 'DM Mono', monospace;
+ }
+
+ .side-long {
+ background: rgba(52,168,83,0.18);
+ color: #34a853;
+ }
+
+ .side-short {
+ background: rgba(234,67,53,0.18);
+ color: #ea4335;
+ }
+
+ .action-icons {
+ display: flex;
+ gap: 16px;
+ margin-top: 16px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }
+
+ .action-icons i {
+ width: 20px;
+ height: 20px;
+ cursor: pointer;
+ opacity: 0.5;
+ transition: opacity 0.2s;
+ }
+
+ .action-icons i:hover { opacity: 1; }
+
+ .icon-like::before { content: '♡'; color: var(--gray-light); }
+ .icon-comment::before { content: '💬'; color: var(--gray-light); }
+ .icon-share::before { content: '↗'; color: var(--gray-light); }
+
  /* Status bar */
  .status-bar {
  position: fixed;
@@ -349,82 +468,8 @@
  <p class="page-subtitle">实时市场数据 · 多维度分析 · 专业交易工具</p>
  </div>
 
- <div class="data-grid">
- <!-- BTC -->
- <div class="data-card">
- <div class="card-header">
- <span class="card-symbol">BTC/USDT</span>
- <span class="card-change pos">+2.34%</span>
- </div>
- <div class="card-price">$67,245.00</div>
- <div class="card-volume">24h Vol: 28.5B</div>
- <div class="card-chart">
- <div class="chart-bar up" style="height:45%;"></div>
- <div class="chart-bar up" style="height:60%;"></div>
- <div class="chart-bar down" style="height:35%;"></div>
- <div class="chart-bar up" style="height:80%;"></div>
- <div class="chart-bar up" style="height:65%;"></div>
- <div class="chart-bar up" style="height:90%;"></div>
- <div class="chart-bar up" style="height:100%;"></div>
- </div>
- </div>
-
- <!-- ETH -->
- <div class="data-card">
- <div class="card-header">
- <span class="card-symbol">ETH/USDT</span>
- <span class="card-change pos">+1.87%</span>
- </div>
- <div class="card-price">$3,456.20</div>
- <div class="card-volume">24h Vol: 15.2B</div>
- <div class="card-chart">
- <div class="chart-bar up" style="height:40%;"></div>
- <div class="chart-bar up" style="height:55%;"></div>
- <div class="chart-bar down" style="height:30%;"></div>
- <div class="chart-bar up" style="height:70%;"></div>
- <div class="chart-bar up" style="height:60%;"></div>
- <div class="chart-bar up" style="height:85%;"></div>
- <div class="chart-bar up" style="height:95%;"></div>
- </div>
- </div>
-
- <!-- SOL -->
- <div class="data-card">
- <div class="card-header">
- <span class="card-symbol">SOL/USDT</span>
- <span class="card-change neg">-0.56%</span>
- </div>
- <div class="card-price">$145.80</div>
- <div class="card-volume">24h Vol: 3.8B</div>
- <div class="card-chart">
- <div class="chart-bar up" style="height:50%;"></div>
- <div class="chart-bar up" style="height:65%;"></div>
- <div class="chart-bar down" style="height:45%;"></div>
- <div class="chart-bar down" style="height:30%;"></div>
- <div class="chart-bar up" style="height:55%;"></div>
- <div class="chart-bar down" style="height:40%;"></div>
- <div class="chart-bar down" style="height:35%;"></div>
- </div>
- </div>
-
- <!-- BNB -->
- <div class="data-card">
- <div class="card-header">
- <span class="card-symbol">BNB/USDT</span>
- <span class="card-change pos">+0.92%</span>
- </div>
- <div class="card-price">$598.40</div>
- <div class="card-volume">24h Vol: 1.5B</div>
- <div class="card-chart">
- <div class="chart-bar up" style="height:35%;"></div>
- <div class="chart-bar down" style="height:25%;"></div>
- <div class="chart-bar up" style="height:45%;"></div>
- <div class="chart-bar up" style="height:60%;"></div>
- <div class="chart-bar up" style="height:55%;"></div>
- <div class="chart-bar up" style="height:70%;"></div>
- <div class="chart-bar up" style="height:75%;"></div>
- </div>
- </div>
+ <div class="data-grid" id="trade-list">
+ <!-- 交易卡片将通过 JavaScript 动态生成 -->
  </div>
  </div>
 </main>
@@ -457,6 +502,47 @@
  }
  updateTime();
  setInterval(updateTime, 1000);
+
+ // 核心：读取 GitHub 上的数据并显示成卡片
+ async function loadTraderData() {
+ try {
+ // 1. 获取 Worker 推送到 GitHub 的最新 JSON 文件
+ const response = await fetch('./data/trade_data.json');
+ const trades = await response.json();
+ const container = document.getElementById('trade-list');
+
+ // 2. 将数据循环转换成 HTML 卡片
+ container.innerHTML = trades.map(item => `
+ <div class="trader-card">
+ <div class="card-top">
+ <div class="symbol-pnl">
+ <div class="symbol-name">${item.symbol} <span class="verify-icon">✓</span></div>
+ <div class="pnl-value ${parseFloat(item.pnl) >= 0 ? 'pnl-positive' : 'pnl-negative'}">
+ ${item.pnl}%
+ </div>
+ </div>
+ <svg class="chart-area" viewBox="0 0 100 40">
+ <path d="M0 35 Q 20 35, 30 20 T 50 25 T 100 30" stroke="${parseFloat(item.pnl) >= 0 ? '#2ebd85' : '#f6465d'}" />
+ </svg>
+ </div>
+ <div class="data-grid">
+ <div class="data-item"><span class="label">开仓价</span><span class="val">${item.entry}</span></div>
+ <div class="data-item"><span class="label">最新价</span><span class="val">${item.last}</span></div>
+ <div class="data-item"><span class="label">杠杆</span><span class="val">${item.lev}X</span></div>
+ <div class="data-item"><span class="side-tag ${item.side === 'SHORT' ? 'side-short' : 'side-long'}">${item.side === 'SHORT' ? '正在做空' : '正在做多'}</span></div>
+ </div>
+ <div class="action-icons">
+ <i class="icon-like"></i><i class="icon-comment"></i><i class="icon-share"></i>
+ </div>
+ </div>
+ `).join('');
+ } catch (e) {
+ console.error("加载交易数据失败:", e);
+ }
+ }
+
+ // 页面加载时运行
+ window.onload = loadTraderData;
 </script>
 
 </body>
