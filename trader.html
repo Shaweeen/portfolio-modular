@@ -367,34 +367,12 @@
  color: #34a853;
  }
 
- .side-short {
+.side-short {
  background: rgba(234,67,53,0.18);
  color: #ea4335;
- }
+}
 
- .action-icons {
- display: flex;
- gap: 16px;
- margin-top: 16px;
- padding-top: 16px;
- border-top: 1px solid var(--border);
- }
-
- .action-icons i {
- width: 20px;
- height: 20px;
- cursor: pointer;
- opacity: 0.5;
- transition: opacity 0.2s;
- }
-
- .action-icons i:hover { opacity: 1; }
-
- .icon-like::before { content: '♡'; color: var(--gray-light); }
- .icon-comment::before { content: '💬'; color: var(--gray-light); }
- .icon-share::before { content: '↗'; color: var(--gray-light); }
-
- /* Status bar */
+/* Status bar */
  .status-bar {
  position: fixed;
  bottom: 0; left: 0; right: 0;
@@ -534,9 +512,6 @@
  <div class="data-item"><span class="label">最新价</span><span class="val">${item.last}</span></div>
  <div class="data-item"><span class="label">杠杆</span><span class="val">${item.lev}X</span></div>
  <div class="data-item"><span class="side-tag ${item.side === 'SHORT' ? 'side-short' : 'side-long'}">${item.side === 'SHORT' ? '正在做空' : '正在做多'}</span></div>
- </div>
- <div class="action-icons">
- <i class="icon-like"></i><i class="icon-comment"></i><i class="icon-share"></i>
  </div>
  </div>
  `).join('');
