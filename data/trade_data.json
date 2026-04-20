@@ -1,50 +1,7 @@
 [
   {
-    "symbol": "BTC/USDT",
-    "pnl": "+12.5",
-    "entry": "65000",
-    "last": "73125",
-    "lev": "10",
-    "side": "LONG"
-  },
-  {
-    "symbol": "ETH/USDT",
-    "pnl": "+8.3",
-    "entry": "3200",
-    "last": "3465",
-    "lev": "5",
-    "side": "LONG"
-  },
-  {
-    "symbol": "SOL/USDT",
-    "pnl": "-3.2",
-    "entry": "150",
-    "last": "145.2",
-    "lev": "8",
-    "side": "SHORT"
-  },
-  {
-    "symbol": "BNB/USDT",
-    "pnl": "+5.7",
-    "entry": "565",
-    "last": "597.2",
-    "lev": "6",
-    "side": "LONG"
-  },
-  {
-    "symbol": "XRP/USDT",
-    "pnl": "-1.8",
-    "entry": "0.62",
-    "last": "0.61",
-    "lev": "10",
-    "side": "SHORT"
-  },
-  {
-    "symbol": "DOGE/USDT",
-    "pnl": "+15.2",
-    "entry": "0.12",
-    "last": "0.138",
-    "lev": "20",
-    "side": "LONG"
+    "symbol": "BTC",
+    "price": 65000,
+    "timestamp": "2026-04-20T11:00:00Z"
   }
 ]
