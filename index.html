@@ -743,11 +743,31 @@
     margin-right: 5px;
     animation: pulse 2s infinite;
   }
-  @keyframes pulse {
-    0%,100% { opacity: 1; } 50% { opacity: 0.3; }
-  }
+@keyframes pulse {
+ 0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+}
 
-  @media (max-width: 900px) {
+/* Gradient text effect for -2018 */
+.gradient-2018 {
+ display: inline-block;
+ font-family: 'DM Mono', monospace;
+ font-weight: 500;
+ background: linear-gradient(to right, 
+ #333333 0%, 
+ #555555 20%, 
+ #777777 40%, 
+ #aaaaaa 60%, 
+ #dddddd 80%, 
+ #ffffff 100%
+ );
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ background-clip: text;
+ color: transparent;
+ letter-spacing: 0.05em;
+}
+
+ @media (max-width: 900px) {
     main { flex-direction: column; }
     .left-panel { flex: none; padding: 40px 24px; }
     .right-panel { min-height: 300px; }
@@ -941,7 +961,7 @@
     <!-- Headline -->
     <div class="headline-block">
 <div class="headline">21MxBitcoin LABS<br/><span class="dim">trader alpha</span></div>
- <p class="subline">专注 · 专业 · -2018</p>
+ <p class="subline">专注 · 专业 · <span class="gradient-2018">-2018</span>2018</p>
     </div>
 
 <!-- CTAs -->
