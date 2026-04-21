@@ -1022,7 +1022,7 @@
  setInterval(updateDate, 1000);
 
 // 数据映射与渲染逻辑 - 仅更新 tbody 内容，不改动外层容器
-const DATA_PATH = './data/trade_data.json';
+const DATA_PATH = './data/工作表1.json';
 
 async function loadSheetData() {
  const tbody = document.getElementById('sheet-tbody-data');
@@ -1035,57 +1035,59 @@ async function loadSheetData() {
  // 清空现有内容
  tbody.innerHTML = '';
  
+ // 获取表头和数据
+ const headers = json.headers || [];
+ const rows = json.rows || [];
+ 
  // 表头行 (第1行)
  const headerRow = document.createElement('tr');
- headerRow.innerHTML = `
- <td class="row-num">1</td>
- <td class="cell-bold">交易对</td>
- <td class="cell-bold">方向</td>
- <td class="cell-bold">收益率</td>
- <td class="cell-bold">盈亏</td>
- <td class="cell-bold">杠杆</td>
- <td class="cell-bold">日期</td>
- `;
+ let headerHTML = '<td class="row-num">1</td>';
+ headers.forEach(h => {
+ headerHTML += `<td class="cell-bold">${h}</td>`;
+ });
+ headerRow.innerHTML = headerHTML;
  tbody.appendChild(headerRow);
  
  // 数据行 - 最多显示9行 (第2-10行)
- const displayData = json.slice(0, 9);
- displayData.forEach((item, index) => {
+ const displayData = rows.slice(0, 9);
+ displayData.forEach((row, index) => {
  const tr = document.createElement('tr');
- const pnlNum = parseFloat(item.pnl);
- const isPositive = pnlNum >= 0;
- const profitNum = parseFloat(item.profit || 0);
- const isProfitPositive = profitNum >= 0;
- const date = item.time ? new Date(item.time).toLocaleDateString('zh-CN', {
- day: '2-digit', month: '2-digit', year: 'numeric'
- }) : new Date().toLocaleDateString('zh-CN', {
- day: '2-digit', month: '2-digit', year: 'numeric'
- });
  
  // 第一行数据添加选中状态
- const selectedClass = index === 0 ? 'row-selected' : '';
- if (selectedClass) tr.classList.add(selectedClass);
+ if (index === 0) tr.classList.add('row-selected');
  
- tr.innerHTML = `
- <td class="row-num">${index + 2}</td>
- <td>${item.symbol || '--'}</td>
- <td><span class="cell-tag ${item.side === 'LONG' ? 'tag-green' : 'tag-red'}">${item.side === 'LONG' ? '做多' : '做空'}</span></td>
- <td class="${isPositive ? 'cell-num' : ''}" style="color: ${isPositive ? '#34a853' : '#ea4335'}">${item.pnl}</td>
- <td style="color: ${isProfitPositive ? '#34a853' : '#ea4335'}">${item.profit || '--'} USDT</td>
- <td class="cell-num">${item.lev || '--'}X</td>
- <td class="cell-num">${date}</td>
- `;
+ let rowHTML = `<td class="row-num">${index + 2}</td>`;
+ row.forEach((cell, i) => {
+ // 收益列（第7列，索引6）标绿
+ if (i === 6 && typeof cell === 'number' && cell > 0) {
+ rowHTML += `<td class="cell-num" style="color: #34a853">$ ${cell}</td>`;
+ } else if (i === 5 && typeof cell === 'number') {
+ // 成本列
+ rowHTML += `<td class="cell-num">$ ${cell}</td>`;
+ } else if (i === 4 && typeof cell === 'number') {
+ // 周期列
+ rowHTML += `<td class="cell-num">${cell}M</td>`;
+ } else if (i === 3 || i === 8) {
+ // 状态列添加标签样式
+ const tagClass = cell === '已上市' || cell === 'claimed' ? 'tag-green' : 
+ cell === '进行中' ? 'tag-yellow' : 'tag-gray';
+ rowHTML += `<td><span class="cell-tag ${tagClass}">${cell}</span></td>`;
+ } else {
+ rowHTML += `<td>${cell}</td>`;
+ }
+ });
+ tr.innerHTML = rowHTML;
  tbody.appendChild(tr);
  });
  
  // 锁定行 - 超过9行显示收缩提示
- if (json.length > 9) {
+ if (rows.length > 9) {
  const lockedRow = document.createElement('tr');
  lockedRow.className = 'locked-row';
  lockedRow.innerHTML = `
  <td class="row-num">${11}</td>
- <td colspan="6" style="text-align: center; color: #555; font-style: italic; padding: 20px;">
- 🔒 RESTRICTED DATA: ${json.length - 9} MORE ITEMS HIDDEN
+ <td colspan="${headers.length}" style="text-align: center; color: #555; font-style: italic; padding: 20px;">
+ 🔒 RESTRICTED DATA: ${rows.length - 9} MORE ITEMS HIDDEN
  </td>
  `;
  tbody.appendChild(lockedRow);
@@ -1095,7 +1097,7 @@ async function loadSheetData() {
  console.error('数据加载失败:', err);
  tbody.innerHTML = `
  <tr>
- <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+ <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
  数据加载失败，请检查网络连接
  </td>
  </tr>
