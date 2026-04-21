@@ -289,12 +289,12 @@
  transform: translateY(-4px);
  }
 
- .card-top {
+.card-top {
  display: flex;
  justify-content: space-between;
  align-items: flex-start;
- margin-bottom: 16px;
- }
+ margin-bottom: 8px;
+}
 
  .symbol-pnl {
  flex: 1;
@@ -323,17 +323,35 @@
  .pnl-positive { color: #2ebd85; }
  .pnl-negative { color: #f6465d; }
 
- .chart-area {
- width: 80px;
- height: 40px;
- }
+.chart-area {
+ width: 120px;
+ height: 50px;
+}
 
- .trader-card .data-grid {
+.chart-svg {
+ width: 100%;
+ height: 100%;
+}
+
+.entry-point {
+ font-family: 'DM Mono', monospace;
+ font-size: 8px;
+ font-weight: 700;
+}
+
+.exit-point {
+ font-family: 'DM Mono', monospace;
+ font-size: 8px;
+ font-weight: 700;
+}
+
+.trader-card .data-grid {
  display: grid;
  grid-template-columns: repeat(2, 1fr);
- gap: 12px;
- margin: 16px 0;
- }
+ gap: 8px;
+ margin: 12px 0 0 0;
+ font-size: 12px;
+}
 
  .data-item {
  display: flex;
@@ -493,28 +511,69 @@
  const trades = await response.json();
  const container = document.getElementById('trade-list');
 
- // 2. 将数据循环转换成 HTML 卡片
- container.innerHTML = trades.map(item => `
+ container.innerHTML = trades.map(item => {
+ const isOpen = item.status === 'open';
+ const isLong = item.side === 'LONG';
+ const entryPrice = parseFloat(item.entry);
+ const currentOrExit = isOpen ? parseFloat(item.last) : parseFloat(item.exit);
+ const priceDiff = currentOrExit - entryPrice;
+ const pricePercent = ((priceDiff / entryPrice) * 100).toFixed(1);
+ 
+ // 生成价格曲线数据点
+ const baseY = 25;
+ const amplitude = 12;
+ const trend = isLong ? -1 : 1;
+ const points = [];
+ for (let i = 0; i <= 100; i += 5) {
+ const x = i;
+ const y = baseY + trend * amplitude * Math.sin(i * 0.05) + (i / 100) * trend * 8;
+ points.push(`${x},${y}`);
+ }
+ 
+ // 计算开仓点在曲线上的位置 (x=30)
+ const entryX = 30;
+ const entryY = baseY + trend * amplitude * Math.sin(entryX * 0.05) + (entryX / 100) * trend * 8;
+ 
+ // 计算关单点在曲线上的位置 (x=70)
+ const exitX = 70;
+ const exitY = baseY + trend * amplitude * Math.sin(exitX * 0.05) + (exitX / 100) * trend * 8;
+ 
+ const entryLabel = isLong ? 'B' : 'S';
+ const exitLabel = isLong ? 'S' : 'B';
+ const strokeColor = parseFloat(item.pnl) >= 0 ? '#2ebd85' : '#f6465d';
+ 
+ return `
  <div class="trader-card">
  <div class="card-top">
  <div class="symbol-pnl">
- <div class="symbol-name">${item.symbol} <span class="verify-icon">✓</span></div>
+ <div class="symbol-name">${item.symbol}</div>
  <div class="pnl-value ${parseFloat(item.pnl) >= 0 ? 'pnl-positive' : 'pnl-negative'}">
  ${item.pnl}%
  </div>
  </div>
- <svg class="chart-area" viewBox="0 0 100 40">
- <path d="M0 35 Q 20 35, 30 20 T 50 25 T 100 30" stroke="${parseFloat(item.pnl) >= 0 ? '#2ebd85' : '#f6465d'}" />
+ <svg class="chart-area" viewBox="0 0 120 50" preserveAspectRatio="none">
+ <!-- 价格曲线 -->
+ <path d="M0,${baseY} Q 30,${baseY - trend * 8} 60,${baseY + trend * 5} T 120,${baseY + trend * 10}" 
+ stroke="${strokeColor}" stroke-width="1.5" fill="none"/>
+ <!-- 开仓点标记 -->
+ <circle cx="${entryX}" cy="${entryY}" r="3" fill="${strokeColor}"/>
+ <text x="${entryX - 4}" y="${entryY - 6}" class="entry-point" fill="${strokeColor}">${entryLabel}</text>
+ ${!isOpen ? `
+ <!-- 关单点标记 (仅已关闭订单显示) -->
+ <circle cx="${exitX}" cy="${exitY}" r="3" fill="${strokeColor}"/>
+ <text x="${exitX - 4}" y="${exitY - 6}" class="exit-point" fill="${strokeColor}">${exitLabel}</text>
+ ` : ''}
  </svg>
  </div>
  <div class="data-grid">
  <div class="data-item"><span class="label">开仓价</span><span class="val">${item.entry}</span></div>
- <div class="data-item"><span class="label">最新价</span><span class="val">${item.last}</span></div>
+ <div class="data-item"><span class="label">${isOpen ? '最新价' : '关单价'}</span><span class="val">${isOpen ? item.last : item.exit}</span></div>
  <div class="data-item"><span class="label">杠杆</span><span class="val">${item.lev}X</span></div>
- <div class="data-item"><span class="side-tag ${item.side === 'SHORT' ? 'side-short' : 'side-long'}">${item.side === 'SHORT' ? '正在做空' : '正在做多'}</span></div>
+ <div class="data-item"><span class="side-tag ${isLong ? 'side-long' : 'side-short'}">${isOpen ? (isLong ? '正在做多' : '正在做空') : (isLong ? '已平多' : '已平空')}</span></div>
  </div>
  </div>
- `).join('');
+ `;
+ }).join('');
  } catch (e) {
  console.error("加载交易数据失败:", e);
  }
