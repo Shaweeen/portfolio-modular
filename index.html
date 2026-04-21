@@ -810,7 +810,7 @@
           <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="#000"/>
         </svg>
       </div>
-      <span class="site-name">21MBitcoin</span>
+      <span class="site-name">21MxBitcoin</span>
     </div>
 
     <!-- GOOGLE SHEETS COMPONENT -->
@@ -822,12 +822,12 @@
           </div>
           <span class="sheets-doc-name">portfolio_2026.sheets</span>
         </div>
-        <div class="sheets-actions">
-          <button class="sheets-btn">文件</button>
-          <button class="sheets-btn">编辑</button>
-          <button class="sheets-btn">共享</button>
-          <button class="sheets-btn primary">发布</button>
-        </div>
+ <div class="sheets-actions">
+ <button class="sheets-btn" id="btnAirdrop">空投</button>
+ <button class="sheets-btn" id="btnTrade">交易</button>
+ <button class="sheets-btn" id="btnDefi">Defi</button>
+ <button class="sheets-btn primary" id="btnCollab">寻求合作</button>
+ </div>
       </div>
 
       <div class="sheets-container">
@@ -1103,6 +1103,103 @@
 
  updateDate();
  setInterval(updateDate, 1000);
+
+ // Sheet toolbar buttons
+ document.getElementById('btnAirdrop')?.addEventListener('click', () => {
+ alert('空投功能即将上线');
+ });
+
+ document.getElementById('btnTrade')?.addEventListener('click', () => {
+ window.location.href = 'trader.html';
+ });
+
+ document.getElementById('btnDefi')?.addEventListener('click', () => {
+ window.location.href = 'alpha.html';
+ });
+
+ // 寻求合作 - 弹出联系方式
+ document.getElementById('btnCollab')?.addEventListener('click', () => {
+ const contactModal = document.createElement('div');
+ contactModal.style.cssText = `
+ position: fixed;
+ inset: 0;
+ background: rgba(0,0,0,0.8);
+ backdrop-filter: blur(10px);
+ z-index: 10000;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ cursor: default;
+ `;
+ contactModal.innerHTML = `
+ <div style="
+ background: #0a0a0a;
+ border: 1px solid rgba(184,255,87,0.25);
+ border-radius: 12px;
+ padding: 32px;
+ width: 90%;
+ max-width: 400px;
+ font-family: 'DM Mono', monospace;
+ ">
+ <h3 style="color: #b8ff57; margin: 0 0 24px 0; font-size: 16px; text-align: center;">寻求合作</h3>
+ <div style="display: flex; flex-direction: column; gap: 16px;">
+ <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+ <span style="color: #666; font-size: 12px;">联系电话</span>
+ <span style="color: #fff; font-size: 13px;">+86 138-0000-0000</span>
+ </div>
+ <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+ <span style="color: #666; font-size: 12px;">邮箱</span>
+ <span style="color: #fff; font-size: 13px;">contact@21mxbitcoin.com</span>
+ </div>
+ <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+ <span style="color: #666; font-size: 12px;">Xchat</span>
+ <span style="color: #fff; font-size: 13px;">@21MxBitcoin</span>
+ </div>
+ <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+ <span style="color: #666; font-size: 12px;">WeChat</span>
+ <span style="color: #fff; font-size: 13px;">shaweeen21</span>
+ </div>
+ <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+ <span style="color: #666; font-size: 12px;">Telegram</span>
+ <span style="color: #fff; font-size: 13px;">t.me/mxbitcoin21</span>
+ </div>
+ </div>
+ <button onclick="this.closest('.fixed').remove()" style="
+ width: 100%;
+ margin-top: 24px;
+ padding: 12px;
+ background: #b8ff57;
+ color: #000;
+ border: none;
+ border-radius: 6px;
+ font-family: 'DM Mono', monospace;
+ font-size: 12px;
+ font-weight: 600;
+ cursor: pointer;
+ ">关闭</button>
+ </div>
+ `;
+ contactModal.classList.add('fixed');
+ document.body.appendChild(contactModal);
+ contactModal.addEventListener('click', (e) => {
+ if (e.target === contactModal) contactModal.remove();
+ });
+ });
+
+ // 年份自动更新：从2026开始，每年+1
+ function updateYear() {
+ const startYear = 2026;
+ const currentYear = new Date().getFullYear();
+ const yearOffset = currentYear - startYear;
+ const displayYear = startYear + yearOffset;
+ 
+ // 更新文档名中的年份
+ const docName = document.querySelector('.sheets-doc-name');
+ if (docName) {
+ docName.textContent = `portfolio_${displayYear}.sheets`;
+ }
+ }
+ updateYear();
 </script>
 </body>
 </html>
