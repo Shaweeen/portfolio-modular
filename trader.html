@@ -1161,7 +1161,7 @@ function generateMockCurve(isLong, isProfit, points, entryPrice) {
  <span class="history-pnl ${parseFloat(item.pnl) >= 0 ? 'positive' : 'negative'}">${item.pnl}%</span>
  <span class="history-profit ${parseFloat(item.profit || 0) >= 0 ? 'positive' : 'negative'}">${item.profit || '--'} USDT</span>
  <span class="history-side ${item.side.toLowerCase()}">${item.side}</span>
- <span class="history-date">${item.time ? new Date(item.time).toLocaleDateString('zh-CN', {day: '2-digit', month: '2-digit', year: 'numeric'}) : '--'}</span>
+ <span class="history-date">${item.time ? new Date(item.time).toLocaleDateString('zh-CN', {day: '2-digit', month: '2-digit', year: 'numeric'}) : new Date().toLocaleDateString('zh-CN', {day: '2-digit', month: '2-digit', year: 'numeric'})}</span>
  </div>
  `).join('')}
  </div>
