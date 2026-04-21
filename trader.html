@@ -546,16 +546,42 @@
  }
  const pnlNum = parseFloat(pnlValue);
  
- // 生成更长的价格曲线数据点（双倍长度）
+ // 生成价格曲线 - 根据盈亏决定曲线方向
+ // 做多浮盈=向上曲线, 做多浮亏=向下曲线
+ // 做空浮盈=向下曲线, 做空浮亏=向上曲线
  const baseY = 45;
  const amplitude = 25;
- const trend = isLong ? -1 : 1;
+ const isProfit = pnlNum >= 0;
  
- // 生成曲线点
- let pathD = `M0,${baseY}`;
- for (let i = 0; i <= 200; i += 10) {
- const x = i / 2;
- const y = baseY + trend * amplitude * Math.sin(i * 0.03) + (i / 200) * trend * 20;
+ // 曲线方向: 盈利时从开仓点向 profitable 方向走，亏损时向亏损方向走
+ // 做多盈利=向上, 做空盈利=向下, 做多亏损=向下, 做空亏损=向上
+ const curveDirection = (isLong && isProfit) || (!isLong && !isProfit) ? -1 : 1;
+ 
+ // 生成曲线点 - 从左侧开始，经过开仓点，向盈亏方向延伸
+ let pathD = '';
+ const startX = 0;
+ const entryX = 30;
+ const endX = 100;
+ 
+ // 计算开仓点Y坐标 (中间位置)
+ const entryY = baseY;
+ 
+ // 构建曲线路径
+ for (let i = 0; i <= 100; i += 5) {
+ const x = i;
+ // 曲线形状: 从左侧开始，在开仓点(30)附近转折，然后向盈亏方向延伸
+ let yOffset = 0;
+ if (i < entryX) {
+ // 开仓点前: 从反方向接近开仓点
+ yOffset = curveDirection * amplitude * (entryX - i) / entryX * 0.5;
+ } else {
+ // 开仓点后: 向盈亏方向延伸
+ yOffset = -curveDirection * amplitude * (i - entryX) / (endX - entryX) * 1.2;
+ }
+ // 添加一些波动
+ yOffset += Math.sin(i * 0.1) * 5;
+ 
+ const y = entryY + yOffset;
  if (i === 0) {
  pathD = `M${x},${y}`;
  } else {
@@ -563,15 +589,12 @@
  }
  }
  
- // 计算开仓点在曲线上的位置 (x=25)
- const entryX = 25;
- const entryI = entryX * 2;
- const entryY = baseY + trend * amplitude * Math.sin(entryI * 0.03) + (entryI / 200) * trend * 20;
+ // 开仓点标记位置
+ const entryMarkerY = entryY + curveDirection * amplitude * 0.3 + Math.sin(entryX * 0.1) * 5;
  
- // 计算关单点在曲线上的位置 (x=75)
+ // 关单点位置 (x=75)
  const exitX = 75;
- const exitI = exitX * 2;
- const exitY = baseY + trend * amplitude * Math.sin(exitI * 0.03) + (exitI / 200) * trend * 20;
+ const exitY = entryY - curveDirection * amplitude * (exitX - entryX) / (endX - entryX) * 1.2 + Math.sin(exitX * 0.1) * 5;
  
  const entryLabel = isLong ? 'B' : 'S';
  const exitLabel = isLong ? 'S' : 'B';
@@ -591,8 +614,8 @@
  <path d="${pathD}" 
  stroke="${strokeColor}" stroke-width="1.5" fill="none"/>
  <!-- 开仓点标记 -->
- <circle cx="${entryX}" cy="${entryY}" r="3" fill="${strokeColor}"/>
- <text x="${entryX - 4}" y="${entryY - 6}" class="entry-point" fill="${strokeColor}">${entryLabel}</text>
+ <circle cx="${entryX}" cy="${entryMarkerY}" r="3" fill="${strokeColor}"/>
+ <text x="${entryX - 4}" y="${entryMarkerY - 6}" class="entry-point" fill="${strokeColor}">${entryLabel}</text>
  ${!isOpen ? `
  <!-- 关单点标记 (仅已关闭订单显示) -->
  <circle cx="${exitX}" cy="${exitY}" r="3" fill="${strokeColor}"/>
@@ -601,7 +624,7 @@
  </svg>
  </div>
  <div class="pnl-row">
- <span class="pnl-label">状态盈亏 PNL</span>
+ <span class="pnl-label">盈亏状态</span>
  <span class="pnl-amount ${pnlNum >= 0 ? 'pnl-positive' : 'pnl-negative'}">${item.profit || (pnlNum * entryPrice / 100).toFixed(2)} USDT</span>
  </div>
  <div class="data-grid">
