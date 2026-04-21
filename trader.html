@@ -700,58 +700,70 @@
  const range = max - min || 1;
  
  // 曲线逻辑修正：
- // B做多 + PNL盈利(+) = 曲线向上 (价格从开仓点上涨)
- // S做空 + PNL盈利(+) = 曲线向下 (价格从开仓点下跌)
- // B做多 + PNL亏损(-) = 曲线向下 (价格从开仓点下跌)  
- // S做空 + PNL亏损(-) = 曲线向上 (价格从开仓点上涨)
- // 
- // 实际价格走势：
- // - 做多盈利 = 当前价 > 开仓价 (价格上涨)
- // - 做空盈利 = 当前价 < 开仓价 (价格下跌)
- // - 做多亏损 = 当前价 < 开仓价 (价格下跌)
- // - 做空亏损 = 当前价 > 开仓价 (价格上涨)
+ // Canvas Y轴：0在顶部，height在底部
+ // 价格越高，Y坐标应该越小（向上）；价格越低，Y坐标应该越大（向下）
  //
- // 所以：做多时价格越高Y坐标越小(向上)，做空时价格越低Y坐标越小(向上)
- // 我们需要根据实际盈亏来反转Y轴
- // isLong && isProfit -> 做多盈利 -> 价格从低到高 -> 曲线向上
- // !isLong && isProfit -> 做空盈利 -> 价格从高到低 -> 曲线向下 
- // isLong && !isProfit -> 做多亏损 -> 价格从高到低 -> 曲线向下
- // !isLong && !isProfit -> 做空亏损 -> 价格从低到高 -> 曲线向上
+ // B做多 + PNL盈利(+) = 价格上涨 = Y坐标减小 = 曲线向上 📈
+ // S做空 + PNL盈利(+) = 价格下跌 = Y坐标增加 = 曲线向下 📉
+ // B做多 + PNL亏损(-) = 价格下跌 = Y坐标增加 = 曲线向下 📉
+ // S做空 + PNL亏损(-) = 价格上涨 = Y坐标减小 = 曲线向上 📈
  //
- // 修正逻辑：
- // - 做多盈利或做空亏损：曲线应该向上 (价格走势向上)
- // - 做空盈利或做多亏损：曲线应该向下 (价格走势向下)
- // 即：当 (做多 && 盈利) 或 (做空 && 亏损) 时，曲线向上
- const shouldCurveUp = (isLong && isProfit) || (!isLong && !isProfit);
- const curveDirection = shouldCurveUp ? -1 : 1;
+ // 需要反转Y轴的情况（让高价在上方）：做多盈利 或 做空亏损
+ const shouldInvertY = (isLong && isProfit) || (!isLong && !isProfit);
  
- // 计算开仓点位置 (约30%位置)
- const entryIndex = Math.floor(data.length * 0.3);
- const entryPrice = data[entryIndex];
- 
- // 绘制价格曲线
+ // 绘制价格曲线 - 从开仓点视角绘制
  ctx.beginPath();
  ctx.strokeStyle = isProfit ? '#2ebd85' : '#f6465d';
  ctx.lineWidth = 2;
  
+ // 计算开仓点位置 (约30%位置作为默认值)
+ const entryIndex = Math.floor(data.length * 0.3);
+ const entryPrice = data[entryIndex];
+ 
+ // 重新构建数据：从开仓点开始，前面用开仓价填充，后面用实际数据
+ const chartData = [];
+ // 开仓点前：用开仓价
+ for (let i = 0; i < entryIndex; i++) {
+ chartData.push(entryPrice);
+ }
+ // 开仓点后：用实际数据
+ for (let i = entryIndex; i < data.length; i++) {
+ chartData.push(data[i]);
+ }
+ 
+ const chartMin = Math.min(...chartData);
+ const chartMax = Math.max(...chartData);
+ const chartRange = chartMax - chartMin || 1;
+ 
+ // 根据盈亏方向决定是否反转Y轴
+ // 盈利时：价格对做多有利(上涨)或对做空有利(下跌)都应该显示为向上
+ // 但实际上 Canvas Y轴是向下增加的，所以需要反转
+ // 做多盈利：价格上涨，应该显示向上 (Y坐标减小)
+ // 做空盈利：价格下跌，应该显示向下 (Y坐标增加)
+ // 所以我们需要：做多盈利和做空亏损 -> 正常Y轴；做空盈利和做多亏损 -> 反转Y轴
+ const shouldInvertY = (isLong && isProfit) || (!isLong && !isProfit);
+ 
  // 生成平滑曲线
- data.forEach((price, i) => {
- const x = (i / (data.length - 1)) * width;
- // 根据盈亏方向调整Y坐标
- let normalizedY = ((price - min) / range);
- if (curveDirection === -1) {
- normalizedY = 1 - normalizedY; // 反转，盈利向上
+ chartData.forEach((price, i) => {
+ const x = (i / (chartData.length - 1)) * width;
+ // 归一化Y坐标 (0-1)
+ let normalizedY = (price - chartMin) / chartRange;
+ // 根据方向反转
+ if (!shouldInvertY) {
+ normalizedY = 1 - normalizedY;
  }
  const y = normalizedY * (height - 10) + 5;
  
  if (i === 0) {
  ctx.moveTo(x, y);
+ } else if (i <= entryIndex) {
+ // 开仓点前的水平线
+ ctx.lineTo(x, y);
  } else {
- // 使用贝塞尔曲线使线条更平滑
- const prevX = ((i - 1) / (data.length - 1)) * width;
- const prevPrice = data[i - 1];
- let prevNormalizedY = ((prevPrice - min) / range);
- if (curveDirection === -1) {
+ // 开仓点后的曲线
+ const prevX = ((i - 1) / (chartData.length - 1)) * width;
+ let prevNormalizedY = (chartData[i-1] - chartMin) / chartRange;
+ if (!shouldInvertY) {
  prevNormalizedY = 1 - prevNormalizedY;
  }
  const prevY = prevNormalizedY * (height - 10) + 5;
@@ -762,9 +774,9 @@
  ctx.stroke();
  
  // 绘制开仓点标记
- const entryX = (entryIndex / (data.length - 1)) * width;
- let entryNormalizedY = ((entryPrice - min) / range);
- if (curveDirection === -1) {
+ const entryX = (entryIndex / (chartData.length - 1)) * width;
+ let entryNormalizedY = (entryPrice - chartMin) / chartRange;
+ if (!shouldInvertY) {
  entryNormalizedY = 1 - entryNormalizedY;
  }
  const entryY = entryNormalizedY * (height - 10) + 5;
@@ -823,8 +835,11 @@
  card.querySelector('.entry-val').textContent = trade.entry;
  card.querySelector('.last-val').textContent = trade.last || trade.exit || '--';
  
- // 时间显示 (模拟)
- card.querySelector('.time-ago').textContent = '刚刚';
+ // 时间显示：使用数据中的时间戳或显示当前时间
+ const timeAgo = trade.time 
+ ? new Date(trade.time).toLocaleString('zh-CN', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})
+ : new Date().toLocaleString('zh-CN', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'});
+ card.querySelector('.time-ago').textContent = timeAgo;
  
  // 5. 绘制趋势图
  const canvas = clone.querySelector('.sparkline');
