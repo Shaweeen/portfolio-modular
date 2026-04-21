@@ -324,8 +324,8 @@
  .pnl-negative { color: #f6465d; }
 
 .chart-area {
- width: 120px;
- height: 50px;
+ width: 160px;
+ height: 70px;
 }
 
 .chart-svg {
@@ -335,14 +335,36 @@
 
 .entry-point {
  font-family: 'DM Mono', monospace;
- font-size: 8px;
+ font-size: 9px;
  font-weight: 700;
 }
 
 .exit-point {
  font-family: 'DM Mono', monospace;
- font-size: 8px;
+ font-size: 9px;
  font-weight: 700;
+}
+
+.pnl-row {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 8px 0;
+ margin: 8px 0;
+ border-top: 1px solid var(--border);
+ border-bottom: 1px solid var(--border);
+}
+
+.pnl-label {
+ font-size: 11px;
+ color: var(--gray-text);
+ font-family: 'DM Mono', monospace;
+}
+
+.pnl-amount {
+ font-family: 'DM Mono', monospace;
+ font-size: 16px;
+ font-weight: 500;
 }
 
 .trader-card .data-grid {
@@ -524,18 +546,32 @@
  }
  const pnlNum = parseFloat(pnlValue);
  
- // 生成价格曲线数据点
- const baseY = 25;
- const amplitude = 12;
+ // 生成更长的价格曲线数据点（双倍长度）
+ const baseY = 35;
+ const amplitude = 18;
  const trend = isLong ? -1 : 1;
  
- // 计算开仓点在曲线上的位置 (x=30)
- const entryX = 30;
- const entryY = baseY + trend * amplitude * Math.sin(entryX * 0.05) + (entryX / 100) * trend * 8;
+ // 生成曲线点
+ let pathD = `M0,${baseY}`;
+ for (let i = 0; i <= 200; i += 10) {
+ const x = i / 2; // 缩放到0-100范围
+ const y = baseY + trend * amplitude * Math.sin(i * 0.03) + (i / 200) * trend * 15;
+ if (i === 0) {
+ pathD = `M${x},${y}`;
+ } else {
+ pathD += ` L${x},${y}`;
+ }
+ }
  
- // 计算关单点在曲线上的位置 (x=70)
- const exitX = 70;
- const exitY = baseY + trend * amplitude * Math.sin(exitX * 0.05) + (exitX / 100) * trend * 8;
+ // 计算开仓点在曲线上的位置 (x=25)
+ const entryX = 25;
+ const entryI = entryX * 2;
+ const entryY = baseY + trend * amplitude * Math.sin(entryI * 0.03) + (entryI / 200) * trend * 15;
+ 
+ // 计算关单点在曲线上的位置 (x=75)
+ const exitX = 75;
+ const exitI = exitX * 2;
+ const exitY = baseY + trend * amplitude * Math.sin(exitI * 0.03) + (exitI / 200) * trend * 15;
  
  const entryLabel = isLong ? 'B' : 'S';
  const exitLabel = isLong ? 'S' : 'B';
@@ -550,9 +586,9 @@
  ${pnlValue}%
  </div>
  </div>
- <svg class="chart-area" viewBox="0 0 120 50" preserveAspectRatio="none">
+ <svg class="chart-area" viewBox="0 0 100 70" preserveAspectRatio="none">
  <!-- 价格曲线 -->
- <path d="M0,${baseY} Q 30,${baseY - trend * 8} 60,${baseY + trend * 5} T 120,${baseY + trend * 10}" 
+ <path d="${pathD}" 
  stroke="${strokeColor}" stroke-width="1.5" fill="none"/>
  <!-- 开仓点标记 -->
  <circle cx="${entryX}" cy="${entryY}" r="3" fill="${strokeColor}"/>
@@ -563,6 +599,10 @@
  <text x="${exitX - 4}" y="${exitY - 6}" class="exit-point" fill="${strokeColor}">${exitLabel}</text>
  ` : ''}
  </svg>
+ </div>
+ <div class="pnl-row">
+ <span class="pnl-label">状态盈亏 PNL</span>
+ <span class="pnl-amount ${pnlNum >= 0 ? 'pnl-positive' : 'pnl-negative'}">${item.profit || (pnlNum * entryPrice / 100).toFixed(2)} USDT</span>
  </div>
  <div class="data-grid">
  <div class="data-item"><span class="label">开仓价</span><span class="val">${item.entry}</span></div>
