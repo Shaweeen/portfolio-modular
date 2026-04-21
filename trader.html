@@ -698,8 +698,8 @@
  // JSON数据源
  const JSON_URL = './data/trade_data.json';
 
- // 绘制Sparkline曲线 - 根据盈亏方向
- function drawSparkline(canvas, data, isLong, isProfit) {
+// 绘制Sparkline曲线 - 4种情况直接绘制
+function drawSparkline(canvas, data, isLong, isProfit) {
  const ctx = canvas.getContext('2d');
  const width = canvas.width;
  const height = canvas.height;
@@ -709,47 +709,41 @@
  
  if (!data || data.length < 2) return;
  
- const min = Math.min(...data);
- const max = Math.max(...data);
- const range = max - min || 1;
+ // 确定4种情况之一
+ // 1. 做多 + 正盈利 = 曲线向上
+ // 2. 做多 + 负盈利 = 曲线向下
+ // 3. 做空 + 正盈利 = 曲线向下
+ // 4. 做空 + 负盈利 = 曲线向上
  
- // 曲线逻辑技能：
- // Canvas Y轴：0在顶部，height在底部
- // Y坐标越小位置越靠上，Y坐标越大位置越靠下
- //
- // 1. 做多 + 正盈利 = 曲线向上 📈
- // 2. 做多 + 负盈利 = 曲线向下 📉
- // 3. 做空 + 正盈利 = 曲线向下 📉
- // 4. 做空 + 负盈利 = 曲线向上 📈
- //
- // 实现逻辑：
- // - 曲线向上 = 高价在上方 (shouldInvertY = true)
- // - 曲线向下 = 低价在上方 (shouldInvertY = false)
- //
- // shouldInvertY = true 时：高价(1) → Y坐标小 → 在上方
- // shouldInvertY = false 时：高价(1) → Y坐标大 → 在下方
- //
- // 所以：
- // - 做多盈利、做空亏损 → 曲线向上 → shouldInvertY = true
- // - 做空盈利、做多亏损 → 曲线向下 → shouldInvertY = false
- const shouldInvertY = (isLong && isProfit) || (!isLong && !isProfit);
+ let trendUp; // true = 曲线向上, false = 曲线向下
  
- // 绘制价格曲线 - 从开仓点视角绘制
- ctx.beginPath();
+ if (isLong && isProfit) {
+ // 情况1: 做多 + 正盈利 → 向上
+ trendUp = true;
+ } else if (isLong && !isProfit) {
+ // 情况2: 做多 + 负盈利 → 向下
+ trendUp = false;
+ } else if (!isLong && isProfit) {
+ // 情况3: 做空 + 正盈利 → 向下
+ trendUp = false;
+ } else {
+ // 情况4: 做空 + 负盈利 → 向上
+ trendUp = true;
+ }
+ 
+ // 设置颜色
  ctx.strokeStyle = isProfit ? '#2ebd85' : '#f6465d';
  ctx.lineWidth = 2;
  
- // 计算开仓点位置 (约30%位置作为默认值)
+ // 计算开仓点位置 (约30%位置)
  const entryIndex = Math.floor(data.length * 0.3);
  const entryPrice = data[entryIndex];
  
- // 重新构建数据：从开仓点开始，前面用开仓价填充，后面用实际数据
+ // 构建图表数据：开仓点前用开仓价填充，后面用实际数据
  const chartData = [];
- // 开仓点前：用开仓价
  for (let i = 0; i < entryIndex; i++) {
  chartData.push(entryPrice);
  }
- // 开仓点后：用实际数据
  for (let i = entryIndex; i < data.length; i++) {
  chartData.push(data[i]);
  }
@@ -758,36 +752,34 @@
  const chartMax = Math.max(...chartData);
  const chartRange = chartMax - chartMin || 1;
  
- // 根据盈亏方向决定是否反转Y轴
- // 盈利时：价格对做多有利(上涨)或对做空有利(下跌)都应该显示为向上
- // 但实际上 Canvas Y轴是向下增加的，所以需要反转
- // 做多盈利：价格上涨，应该显示向上 (Y坐标减小)
- // 做空盈利：价格下跌，应该显示向下 (Y坐标增加)
- // 所以我们需要：做多盈利和做空亏损 -> 正常Y轴；做空盈利和做多亏损 -> 反转Y轴
- // shouldInvertY 已在上方定义，这里直接使用
+ // 绘制曲线
+ ctx.beginPath();
  
- // 生成平滑曲线
  chartData.forEach((price, i) => {
  const x = (i / (chartData.length - 1)) * width;
- // 归一化Y坐标 (0-1)
+ 
+ // 归一化价格到 0-1
  let normalizedY = (price - chartMin) / chartRange;
- // 修正：做多盈利和做空亏损时，高价应该在上方（Y坐标小）
- // 所以需要反转：高价(1) -> 小Y，低价(0) -> 大Y
- if (shouldInvertY) {
- normalizedY = 1 - normalizedY;
+ 
+ // 根据趋势方向决定Y轴方向
+ // trendUp = true: 高价在上方 (Y坐标小)
+ // trendUp = false: 高价在下方 (Y坐标大)
+ if (trendUp) {
+ normalizedY = 1 - normalizedY; // 反转，高价在上
  }
+ // trendUp = false 时不反转，高价在下
+ 
  const y = normalizedY * (height - 10) + 5;
  
  if (i === 0) {
  ctx.moveTo(x, y);
  } else if (i <= entryIndex) {
- // 开仓点前的水平线
  ctx.lineTo(x, y);
  } else {
- // 开仓点后的曲线
+ // 平滑曲线
  const prevX = ((i - 1) / (chartData.length - 1)) * width;
  let prevNormalizedY = (chartData[i-1] - chartMin) / chartRange;
- if (shouldInvertY) {
+ if (trendUp) {
  prevNormalizedY = 1 - prevNormalizedY;
  }
  const prevY = prevNormalizedY * (height - 10) + 5;
@@ -795,29 +787,30 @@
  ctx.quadraticCurveTo(cpX, prevY, x, y);
  }
  });
+ 
  ctx.stroke();
  
  // 绘制开仓点标记
  const entryX = (entryIndex / (chartData.length - 1)) * width;
  let entryNormalizedY = (entryPrice - chartMin) / chartRange;
- if (shouldInvertY) {
+ if (trendUp) {
  entryNormalizedY = 1 - entryNormalizedY;
  }
  const entryY = entryNormalizedY * (height - 10) + 5;
  
- // 绘制圆点
+ // 圆点
  ctx.beginPath();
  ctx.arc(entryX, entryY, 4, 0, Math.PI * 2);
  ctx.fillStyle = isProfit ? '#2ebd85' : '#f6465d';
  ctx.fill();
  
- // 绘制B/S标签
+ // B/S标签
  ctx.font = 'bold 10px "DM Mono", monospace';
  ctx.fillStyle = isProfit ? '#2ebd85' : '#f6465d';
  ctx.textAlign = 'center';
  const label = isLong ? 'B' : 'S';
  ctx.fillText(label, entryX, entryY - 8);
- }
+}
 
  // 渲染交易卡片
  async function renderTraderCards() {
