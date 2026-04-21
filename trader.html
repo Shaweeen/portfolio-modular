@@ -699,7 +699,7 @@
  const JSON_URL = './data/trade_data.json';
 
 // 绘制Sparkline曲线 - 4种情况直接绘制
-function drawSparkline(canvas, data, isLong, isProfit) {
+function drawSparkline(canvas, data, isLong, isProfit, entryPrice) {
  const ctx = canvas.getContext('2d');
  const width = canvas.width;
  const height = canvas.height;
@@ -737,14 +737,18 @@ function drawSparkline(canvas, data, isLong, isProfit) {
  
  // 计算开仓点位置 (约30%位置)
  const entryIndex = Math.floor(data.length * 0.3);
- const entryPrice = data[entryIndex];
+ const actualEntryPrice = parseFloat(entryPrice);
  
- // 构建图表数据：开仓点前用开仓价填充，后面用实际数据
+ // 构建图表数据：开仓点前用开仓价填充，后面用实际价格数据
  const chartData = [];
  for (let i = 0; i < entryIndex; i++) {
- chartData.push(entryPrice);
+ chartData.push(actualEntryPrice);
  }
- for (let i = entryIndex; i < data.length; i++) {
+ // 找到 history 中接近 entry 的点
+ const priceRange = Math.max(...data) - Math.min(...data) || 1;
+ const entryInHistory = data.find(p => Math.abs(p - actualEntryPrice) < priceRange * 0.1) || data[entryIndex];
+ const startIdx = data.indexOf(entryInHistory) > -1 ? data.indexOf(entryInHistory) : entryIndex;
+ for (let i = startIdx; i < data.length; i++) {
  chartData.push(data[i]);
  }
  
@@ -861,11 +865,11 @@ function drawSparkline(canvas, data, isLong, isProfit) {
  // 5. 绘制趋势图
  const canvas = clone.querySelector('.sparkline');
  if (trade.history && trade.history.length > 0) {
- drawSparkline(canvas, trade.history, isLong, isProfit);
+ drawSparkline(canvas, trade.history, isLong, isProfit, trade.entry);
  } else {
  // 如果没有历史数据，生成模拟曲线
- const mockData = generateMockCurve(isLong, isProfit, 20);
- drawSparkline(canvas, mockData, isLong, isProfit);
+ const mockData = generateMockCurve(isLong, isProfit, 20, trade.entry);
+ drawSparkline(canvas, mockData, isLong, isProfit, trade.entry);
  }
  
  container.appendChild(clone);
@@ -876,9 +880,9 @@ function drawSparkline(canvas, data, isLong, isProfit) {
  }
 
 // 生成模拟曲线数据 - 按4种情况生成
-function generateMockCurve(isLong, isProfit, points) {
+function generateMockCurve(isLong, isProfit, points, entryPrice) {
  const data = [];
- const basePrice = 100;
+ const basePrice = parseFloat(entryPrice) || 100;
  
  // 4种情况决定价格趋势方向
  // 1. 做多 + 正盈利 = 价格上涨 (trend = 1)
@@ -898,8 +902,8 @@ function generateMockCurve(isLong, isProfit, points) {
  
  for (let i = 0; i < points; i++) {
  const progress = i / (points - 1);
- const noise = Math.sin(i * 0.5) * 5;
- const direction = trend * progress * 20;
+ const noise = Math.sin(i * 0.5) * (basePrice * 0.02);
+ const direction = trend * progress * (basePrice * 0.1);
  data.push(basePrice + direction + noise);
  }
  return data;
