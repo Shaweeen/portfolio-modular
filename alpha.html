@@ -197,24 +197,24 @@
  font-weight: 300;
  }
 
- /* Section Title */
- .section-title {
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- font-weight: 500;
- letter-spacing: 0.1em;
- text-transform: uppercase;
- margin-bottom: 20px;
- display: flex;
- align-items: center;
- gap: 8px;
- }
+/* Section Title */
+.section-title {
+font-family: 'DM Mono', monospace;
+font-size: 14px;
+font-weight: 600;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+margin-bottom: 24px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
 
- .section-title::before {
- content: '';
- width: 4px; height: 4px;
- border-radius: 50%;
- }
+.section-title::before {
+content: '';
+width: 6px; height: 6px;
+border-radius: 50%;
+}
 
  /* DeFi Section */
  .defi-section {
@@ -278,11 +278,11 @@
  }
 
  .trader-title {
- color: var(--trader-color);
+ color: var(--defi-color);
  }
 
  .trader-title::before {
- background: var(--trader-color);
+ background: var(--defi-color);
  }
 
  /* Trader Grid - 5 tiles */
@@ -641,9 +641,7 @@
 
 <!-- Status bar -->
 <div class="status-bar">
- <span class="status-item online">在线</span>
- <span class="status-item">数据延迟: 150ms</span>
- <span class="status-item">最后更新: <span id="lastUpdate">--</span></span>
+ <span class="status-item" style="margin-left:auto; font-family: 'DM Mono', monospace;">21MxBitcoin LABS</span>
 </div>
 
 <script>
@@ -663,7 +661,6 @@
  const now = new Date();
  const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
  document.getElementById('navTime').textContent = timeStr;
- document.getElementById('lastUpdate').textContent = now.toLocaleString('zh-CN');
  }
  updateTime();
  setInterval(updateTime, 1000);
