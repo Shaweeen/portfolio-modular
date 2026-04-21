@@ -696,17 +696,35 @@ setInterval(updateTime, 1000);
  // JSON数据源
  const JSON_URL = './data/trade_data.json';
 
- // 绑定历史记录按钮事件
+ // 绑定历史记录按钮事件 - 修复移动端触摸问题
 document.addEventListener('DOMContentLoaded', function() {
  const historyBtn = document.getElementById('historyBtn');
  if (historyBtn) {
- historyBtn.addEventListener('click', function() {
+ // 使用指针事件统一处理鼠标和触摸
+ let isHandled = false;
+ 
+ const handleHistoryClick = function(e) {
+ if (isHandled) return;
+ isHandled = true;
  showHistory();
- });
- // 移动端触摸支持
+ setTimeout(() => { isHandled = false; }, 300);
+ };
+ 
+ // 同时支持 click 和 touchend，但防止重复触发
+ historyBtn.addEventListener('click', handleHistoryClick);
+ 
+ // 移动端优化：touchend 不阻止默认行为，但设置标记
  historyBtn.addEventListener('touchend', function(e) {
- e.preventDefault();
- showHistory();
+ // 不阻止默认行为，让浏览器正常处理
+ handleHistoryClick(e);
+ });
+ 
+ // 添加触摸反馈
+ historyBtn.addEventListener('touchstart', function() {
+ this.style.opacity = '0.7';
+ });
+ historyBtn.addEventListener('touchend', function() {
+ this.style.opacity = '';
  });
  }
 });
