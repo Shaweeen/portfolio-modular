@@ -1021,20 +1021,58 @@ animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.35s both;
  setInterval(updateDate, 1000);
 
 // 数据映射与渲染逻辑 - 仅更新 tbody 内容，不改动外层容器
-const DATA_PATH = './data/工作表1.json';
+// 支持多数据源切换：Airdrop(工作表1.json) 和 Trader(trade_data.json)
+let currentDataSource = 'airdrop';
 
 async function loadSheetData() {
  const tbody = document.getElementById('sheet-tbody-data');
  if (!tbody) return;
  
  try {
+ // 根据当前数据源选择路径
+ const DATA_PATH = currentDataSource === 'trader' 
+ ? './data/trade_data.json'
+ : './data/工作表1.json';
+ 
  const res = await fetch(DATA_PATH);
  const json = await res.json();
  
  // 清空现有内容
  tbody.innerHTML = '';
  
- // 获取表头和数据
+ if (currentDataSource === 'trader') {
+ renderTraderData(json, tbody);
+ } else {
+ renderAirdropData(json, tbody);
+ }
+ 
+ } catch (err) {
+ console.error('数据加载失败:', err);
+ tbody.innerHTML = `
+ <tr>
+ <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
+ 数据加载失败，请检查网络连接
+ </td>
+ </tr>
+ `;
+ }
+}
+
+// Tab 切换功能
+function switchTab(tab) {
+ if (tab === currentDataSource) return;
+ currentDataSource = tab;
+ 
+ // 更新 tab 样式
+ document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+ document.getElementById(`tab-${tab}`).classList.add('active');
+ 
+ // 重新加载数据
+ loadSheetData();
+}
+
+// Airdrop 数据渲染（工作表1.json格式）
+function renderAirdropData(json, tbody) {
  const headers = json.headers || [];
  const rows = json.rows || [];
  
@@ -1054,7 +1092,6 @@ async function loadSheetData() {
  const profitA = a[6] || 0;
  const profitB = b[6] || 0;
  
- // 计算收益率
  const roiA = costA > 0 ? profitA / costA : profitA;
  const roiB = costB > 0 ? profitB / costB : profitB;
  
@@ -1122,21 +1159,131 @@ async function loadSheetData() {
  <td style="color: #444;">-</td>
  `;
  tbody.appendChild(lockedRow);
+}
+
+// Trader 数据渲染（trade_data.json格式）
+function renderTraderData(data, tbody) {
+ // Trader 数据是数组格式
+ const rows = Array.isArray(data) ? data : [];
+ 
+ // 表头行 (第1行)
+ const headerRow = document.createElement('tr');
+ headerRow.innerHTML = `
+ <td class="row-num">1</td>
+ <td class="cell-bold">交易对</td>
+ <td class="cell-bold">方向</td>
+ <td class="cell-bold">收益率</td>
+ <td class="cell-bold">盈亏</td>
+ <td class="cell-bold">开仓价</td>
+ <td class="cell-bold">当前价</td>
+ <td class="cell-bold">杠杆</td>
+ <td class="cell-bold">日期</td>
+ `;
+ tbody.appendChild(headerRow);
+ 
+ // 按收益率排序
+ const sortedRows = rows.sort((a, b) => {
+ const pnlA = parseFloat(a.pnl) || 0;
+ const pnlB = parseFloat(b.pnl) || 0;
+ return pnlB - pnlA; // 从高到低
+ });
+ 
+ // 固定显示9行数据（第2-10行），不足9行用空行填充
+ const displayData = sortedRows.slice(0, 9);
+ const emptyRowsNeeded = 9 - displayData.length;
+ 
+ displayData.forEach((item, index) => {
+ const tr = document.createElement('tr');
+ 
+ // 第一行数据添加选中状态
+ if (index === 0) tr.classList.add('row-selected');
+ 
+ const pnlNum = parseFloat(item.pnl) || 0;
+ const profitNum = parseFloat(item.profit) || 0;
+ const isPositive = pnlNum >= 0;
+ const isProfitPositive = profitNum >= 0;
+ const date = item.time ? new Date(item.time).toLocaleDateString('zh-CN', {
+ day: '2-digit', month: '2-digit', year: 'numeric'
+ }) : '--';
+ 
+ tr.innerHTML = `
+ <td class="row-num">${index + 2}</td>
+ <td>${item.symbol || '--'}</td>
+ <td><span class="cell-tag ${item.side === 'LONG' ? 'tag-green' : 'tag-red'}">${item.side || '--'}</span></td>
+ <td style="color: ${isPositive ? '#34a853' : '#ea4335'}">${item.pnl || '--'}</td>
+ <td style="color: ${isProfitPositive ? '#34a853' : '#ea4335'}">$${item.profit || '--'}</td>
+ <td>${item.entry || '--'}</td>
+ <td>${item.last || '--'}</td>
+ <td>${item.lev || '--'}X</td>
+ <td style="color: #888;">${date}</td>
+ `;
+ tbody.appendChild(tr);
+ });
+ 
+ // 填充空行（如果数据不足9行）
+ for (let i = 0; i < emptyRowsNeeded; i++) {
+ const emptyRow = document.createElement('tr');
+ const rowNum = displayData.length + i + 2;
+ let emptyHTML = `<td class="row-num">${rowNum}</td>`;
+ for (let j = 0; j < 8; j++) {
+ emptyHTML += `<td style="color: #333;">-</td>`;
+ }
+ emptyRow.innerHTML = emptyHTML;
+ tbody.appendChild(emptyRow);
+ }
+ 
+ // 锁定行 - 固定放在第10行位置
+ const lockedRow = document.createElement('tr');
+ lockedRow.className = 'locked-row';
+ lockedRow.innerHTML = `
+ <td class="row-num">11</td>
+ <td style="text-align: center; color: #555; font-style: italic; padding: 20px 10px;">🔒</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">RESTRICTED</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">DATA:</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">RECENT</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">9</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">ITEMS</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">ONLY</td>
+ <td style="color: #444;">-</td>
+ `;
+ tbody.appendChild(lockedRow);
+}
+
+// 计算并显示总收益
+async function updateTotalRevenue() {
+ try {
+ // 获取 Airdrop 收益
+ const airdropRes = await fetch('./data/工作表1.json');
+ const airdropData = await airdropRes.json();
+ const airdropProfit = (airdropData.rows || []).reduce((sum, row) => sum + (row[6] || 0), 0);
+ 
+ // 获取 Trader 收益
+ const traderRes = await fetch('./data/trade_data.json');
+ const traderData = await traderRes.json();
+ const traderProfit = (traderData || []).reduce((sum, item) => sum + (parseFloat(item.profit) || 0), 0);
+ 
+ // 计算总收益
+ const totalRevenue = airdropProfit + traderProfit;
+ 
+ // 更新浮动卡片
+ const cardValue = document.querySelector('.card-1 .card-value');
+ const cardLabel = document.querySelector('.card-1 .card-label');
+ const cardSub = document.querySelector('.card-1 .card-sub');
+ 
+ if (cardValue) cardValue.textContent = `$${totalRevenue.toLocaleString()}`;
+ if (cardLabel) cardLabel.textContent = '当前总收益($)';
+ if (cardSub) cardSub.textContent = 'TOTAL';
  
  } catch (err) {
- console.error('数据加载失败:', err);
- tbody.innerHTML = `
- <tr>
- <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
- 数据加载失败，请检查网络连接
- </td>
- </tr>
- `;
+ console.error('计算总收益失败:', err);
  }
 }
 
-// 页面加载完成后执行数据加载
-document.addEventListener('DOMContentLoaded', loadSheetData);
+// 页面加载完成后执行
+ document.addEventListener('DOMContentLoaded', () => {
+ loadSheetData();
+ updateTotalRevenue();
+ });
 
  // Sheet toolbar buttons
 
