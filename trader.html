@@ -747,16 +747,28 @@ function drawSparkline(canvas, data, isLong, isProfit, entryPrice) {
  const entryIndex = Math.floor(data.length * 0.3);
  const actualEntryPrice = parseFloat(entryPrice);
  
- // 构建图表数据：开仓点前用开仓价填充，后面用实际价格数据
+ // 构建图表数据
  const chartData = [];
+ 
+ // 找到 history 中最接近 entry 的点作为起点
+ const priceRange = Math.max(...data) - Math.min(...data) || 1;
+ let closestIdx = 0;
+ let minDiff = Infinity;
+ for (let i = 0; i < data.length; i++) {
+ const diff = Math.abs(data[i] - actualEntryPrice);
+ if (diff < minDiff) {
+ minDiff = diff;
+ closestIdx = i;
+ }
+ }
+ 
+ // 开仓点前用开仓价填充
  for (let i = 0; i < entryIndex; i++) {
  chartData.push(actualEntryPrice);
  }
- // 找到 history 中接近 entry 的点
- const priceRange = Math.max(...data) - Math.min(...data) || 1;
- const entryInHistory = data.find(p => Math.abs(p - actualEntryPrice) < priceRange * 0.1) || data[entryIndex];
- const startIdx = data.indexOf(entryInHistory) > -1 ? data.indexOf(entryInHistory) : entryIndex;
- for (let i = startIdx; i < data.length; i++) {
+ 
+ // 从最接近开仓价的点开始，使用history数据
+ for (let i = closestIdx; i < data.length; i++) {
  chartData.push(data[i]);
  }
  
@@ -774,12 +786,98 @@ function drawSparkline(canvas, data, isLong, isProfit, entryPrice) {
  let normalizedY = (price - chartMin) / chartRange;
  
  // 根据趋势方向决定Y轴方向
- // trendUp = true: 高价在上方 (Y坐标小)
- // trendUp = false: 高价在下方 (Y坐标大)
+ // trendUp = true (多盈/空亏): 高价在上方，曲线向上走
+ // trendUp = false (空盈/多亏): 高价在下方，曲线向下走
+ // 
+ // Canvas Y坐标：0在顶部（上方），height在底部（下方）
+ // 价格越高，如果Y坐标越大，位置越靠下
+ // 价格越低，如果Y坐标越小，位置越靠上
+ //
+ // 做空盈利 (trendUp=false)：价格下跌
+ // - 开仓价高 → 应该显示在下方 → Y坐标大
+ // - 当前价低 → 应该显示在上方 → Y坐标小
+ // - 视觉上：从下方往上方走 = 向上？不对！
+ //
+ // 等等，让我重新理解视觉方向：
+ // 曲线"向下"意味着：从高的位置往低的位置走
+ // 如果开仓在下方（Y大），当前在上方（Y小），那是向上走
+ //
+ // 所以做空盈利要曲线向下，需要：
+ // - 开仓价高 → 显示在上方 → Y坐标小
+ // - 当前价低 → 显示在下方 → Y坐标大
+ // - 视觉上：从上方往下方走 = 向下 ✓
+ //
+ // 结论：
+ // trendUp = true: 高价→小Y(上方)，低价→大Y(下方)，曲线向上
+ // trendUp = false: 高价→大Y(下方)，低价→小Y(上方)，曲线向下
+ //
+ // 等等，这和代码相反！让我再检查：
+ // 当前代码：trendUp=false时不反转
+ // normalizedY = (price - chartMin) / chartRange
+ // 高价 → normalizedY 大 → y 大 → 在下方
+ // 低价 → normalizedY 小 → y 小 → 在上方
+ // 所以：从高价(下方) → 低价(上方) = 向上走
+ //
+ // 但做空盈利应该向下走！
+ // 所以做空盈利时应该反转，让高价在上方
+ //
+ // 修正逻辑：
+ // trendUp = true (多盈/空亏): 不反转，高价在下方... 等等这也不对
+ //
+ // 让我直接测试：
+ // 做多盈利，价格上涨：开仓100→当前120
+ // 要曲线向上：开仓在下方，当前在上方
+ // 所以：开仓(100)→大Y(下方)，当前(120)→小Y(上方)
+ // 这意味着：高价→小Y，低价→大Y，需要反转
+ //
+ // 做空盈利，价格下跌：开仓100→当前80
+ // 要曲线向下：开仓在上方，当前在下方
+ // 所以：开仓(100)→小Y(上方)，当前(80)→大Y(下方)
+ // 这意味着：高价→小Y，低价→大Y，也需要反转？
+ //
+ // 完蛋，两种情况都需要反转？那不对...
+ //
+ // 等等，我需要看实际数据。让我重新思考：
+ // normalizedY = (price - min) / range
+ // 价格越高，normalizedY 越大
+ // y = normalizedY * height → 价格越高，y越大，位置越靠下
+ //
+ // 默认情况下（不反转）：高价在下方，低价在上方
+ // 视觉上：价格从低到高 = 从上方到下方 = 向下走
+ //
+ // 反转后（1 - normalizedY）：高价在上方，低价在下方
+ // 视觉上：价格从低到高 = 从下方到上方 = 向上走
+ //
+ // 所以：
+ // 做多盈利（价格上涨）要曲线向上 → 需要反转 → trendUp=true时反转 ✓
+ // 做空盈利（价格下跌）要曲线向下 → 不需要反转 → trendUp=false时不反转 ✓
+ //
+ // 但用户说做空盈利显示向上，说明代码实际效果相反
+ // 让我检查数据... ETHUSDT做空盈利，entry=2402, last=2299
+ // history: [2405, 2390, 2379, 2359, 2354, 2334, 2326, 2315, 2299]
+ // 价格在下跌
+ //
+ // 等等！我发现问题了：
+ // chartData构建时，开仓点前用开仓价填充
+ // 所以chartData = [2402, 2402, 2402, 2405, 2390, 2379, ...]
+ // 这里有问题！开仓价2402，但history从2405开始
+ // 所以数据是：2402(开仓) → 2405(history[0]) → 2390 → ... → 2299
+ // 价格走势：2402 → 2405(涨) → 2390(跌) → ...
+ //
+ // 这不是单调下跌！所以曲线可能先上后下
+ //
+ // 而且，我填充开仓价在前面，但history第一个点比开仓价还高
+ // 这导致视觉上从开仓价(2402)跳到2405，是上涨的
+ //
+ // 问题找到了！我需要让history数据正确对齐开仓价
+ // 或者，直接用history数据，找到最接近开仓价的点作为起点
+ 
+ // 根据趋势方向决定Y轴方向
+ // trendUp = true (多盈/空亏): 反转，高价在上方，曲线向上
+ // trendUp = false (空盈/多亏): 不反转，高价在下方，曲线向下
  if (trendUp) {
- normalizedY = 1 - normalizedY; // 反转，高价在上
+ normalizedY = 1 - normalizedY;
  }
- // trendUp = false 时不反转，高价在下
  
  const y = normalizedY * (height - 10) + 5;
  
