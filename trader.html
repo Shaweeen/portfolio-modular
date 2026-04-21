@@ -717,13 +717,22 @@
  // Canvas Y轴：0在顶部，height在底部
  // 价格越高，Y坐标应该越小（向上）；价格越低，Y坐标应该越大（向下）
  //
- // B做多 + PNL盈利(+) = 价格上涨 = Y坐标减小 = 曲线向上 📈
- // S做空 + PNL盈利(+) = 价格下跌 = Y坐标增加 = 曲线向下 📉
- // B做多 + PNL亏损(-) = 价格下跌 = Y坐标增加 = 曲线向下 📉
- // S做空 + PNL亏损(-) = 价格上涨 = Y坐标减小 = 曲线向上 📈
+ // B做多 + PNL盈利(+) = 价格上涨 = 曲线应该向上 📈
+ // S做空 + PNL盈利(+) = 价格下跌 = 曲线应该向下 📉
+ // B做多 + PNL亏损(-) = 价格下跌 = 曲线应该向下 📉
+ // S做空 + PNL亏损(-) = 价格上涨 = 曲线应该向上 📈
  //
- // 需要反转Y轴的情况（让高价在上方）：做多盈利 或 做空亏损
- const shouldInvertY = (isLong && isProfit) || (!isLong && !isProfit);
+ // 关键：用户想看的是盈亏走势，不是价格走势
+ // 做多盈利：开仓价 -> 高价，曲线向上
+ // 做空盈利：开仓价 -> 低价，曲线向下
+ // 做多亏损：开仓价 -> 低价，曲线向下
+ // 做空亏损：开仓价 -> 高价，曲线向上
+ //
+ // 实现方式：
+ // - 做多盈利和做空亏损：高价在上方，低价在下方（正常Y轴）
+ // - 做空盈利和做多亏损：低价在上方，高价在下方（反转Y轴）
+ // 这样价格下跌时曲线向下，价格上涨时曲线向上
+ const shouldInvertY = (!isLong && isProfit) || (isLong && !isProfit);
  
  // 绘制价格曲线 - 从开仓点视角绘制
  ctx.beginPath();
@@ -877,6 +886,8 @@
  function generateMockCurve(isLong, isProfit, points) {
  const data = [];
  const basePrice = 100;
+ // 修正：做空盈利和做多亏损时，价格应该下跌（trend=-1）
+ // 做多盈利和做空亏损时，价格应该上涨（trend=1）
  const trend = (isLong && isProfit) || (!isLong && !isProfit) ? 1 : -1;
  
  for (let i = 0; i < points; i++) {
