@@ -24,6 +24,10 @@
  --accent-border: rgba(184,255,87,0.25);
  --border: rgba(255,255,255,0.07);
  --border-strong: rgba(255,255,255,0.12);
+ --profit: #2ebd85;
+ --loss: #f6465d;
+ --defi-color: #0d9488;
+ --trader-color: #7c3aed;
  }
 
  html, body {
@@ -100,247 +104,294 @@
  gap: 28px;
  list-style: none;
  }
+
  .nav-links a {
+ font-family: 'DM Mono', monospace;
  font-size: 13px;
- color: var(--gray-light);
+ color: var(--gray-text);
  text-decoration: none;
- letter-spacing: 0.03em;
+ text-transform: uppercase;
+ letter-spacing: 0.08em;
  transition: color 0.2s;
- font-weight: 300;
+ position: relative;
  }
- .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+ .nav-links a:hover,
+ .nav-links a.active { color: var(--white); }
+
+ .nav-links a.active::after {
+ content: '';
+ position: absolute;
+ bottom: -6px; left: 0; right: 0;
+ height: 2px;
+ background: var(--accent);
+ }
 
  .nav-right {
  display: flex;
  align-items: center;
- gap: 16px;
+ gap: 20px;
  }
 
  .nav-time {
  font-family: 'DM Mono', monospace;
- font-size: 12px;
- color: var(--gray-text);
- letter-spacing: 0.05em;
+ font-size: 13px;
+ color: var(--gray-light);
  }
 
  .nav-lang {
  font-size: 12px;
- color: var(--gray-light);
- font-family: 'DM Mono', monospace;
- border: 1px solid var(--border-strong);
- padding: 3px 8px;
- border-radius: 3px;
+ color: var(--gray-text);
  cursor: none;
- letter-spacing: 0.04em;
  }
 
  .nav-theme-btn {
- width: 28px; height: 28px;
- border: 1px solid var(--border-strong);
- border-radius: 50%;
  background: none;
+ border: none;
  cursor: none;
- display: flex;
- align-items: center;
- justify-content: center;
+ padding: 6px;
+ border-radius: 6px;
+ transition: background 0.2s;
  }
 
- .nav-theme-btn svg { stroke: var(--gray-light); width: 14px; height: 14px; }
+ .nav-theme-btn:hover { background: var(--gray-3); }
+
+ .nav-theme-btn svg {
+ width: 18px; height: 18px;
+ stroke: var(--gray-light);
+ }
 
  /* MAIN */
  main {
- display: flex;
- min-height: 100vh;
  padding-top: 54px;
- position: relative;
+ min-height: 100vh;
  }
 
  .content {
- flex: 1;
- padding: 64px 48px;
- display: flex;
- flex-direction: column;
+ max-width: 1200px;
+ margin: 0 auto;
+ padding: 60px 32px;
  }
 
+ /* Page Header */
  .page-header {
- margin-bottom: 48px;
+ margin-bottom: 40px;
  animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both;
  }
 
  @keyframes fadeUp {
- from { opacity: 0; transform: translateY(28px); }
+ from { opacity: 0; transform: translateY(30px); }
  to { opacity: 1; transform: translateY(0); }
  }
 
  .page-title {
- font-family: 'Noto Serif SC', serif;
- font-size: clamp(32px, 4vw, 48px);
+ font-size: 48px;
  font-weight: 900;
- line-height: 1.1;
- letter-spacing: -0.01em;
- color: var(--white);
- margin-bottom: 16px;
+ letter-spacing: -0.02em;
+ margin-bottom: 12px;
  }
 
  .page-subtitle {
- font-size: 14px;
+ font-size: 16px;
+ color: var(--gray-text);
  font-weight: 300;
- color: var(--gray-light);
- line-height: 1.8;
- letter-spacing: 0.02em;
  }
 
- /* Alpha Signals Feed */
- .signals-container {
- display: flex;
- flex-direction: column;
- gap: 16px;
- margin-top: 32px;
- animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
- }
-
- .signal-card {
- background: var(--gray-1);
- border: 1px solid var(--border);
- border-radius: 10px;
- padding: 20px 24px;
- display: flex;
- align-items: center;
- justify-content: space-between;
- transition: border-color 0.2s, transform 0.2s;
- cursor: none;
- }
-
- .signal-card:hover {
- border-color: var(--accent-border);
- transform: translateX(8px);
- }
-
- .signal-card.new {
- border-left: 3px solid var(--accent);
- }
-
- .signal-left {
- display: flex;
- align-items: center;
- gap: 16px;
- }
-
- .signal-icon {
- width: 48px;
- height: 48px;
- border-radius: 10px;
- display: flex;
- align-items: center;
- justify-content: center;
+ /* Section Title */
+ .section-title {
  font-family: 'DM Mono', monospace;
  font-size: 12px;
  font-weight: 500;
- }
-
- .signal-icon.buy {
- background: rgba(52,168,83,0.15);
- color: #34a853;
- border: 1px solid rgba(52,168,83,0.3);
- }
-
- .signal-icon.sell {
- background: rgba(234,67,53,0.15);
- color: #ea4335;
- border: 1px solid rgba(234,67,53,0.3);
- }
-
- .signal-icon.alert {
- background: rgba(251,188,4,0.15);
- color: #fbbc04;
- border: 1px solid rgba(251,188,4,0.3);
- }
-
- .signal-info {
- display: flex;
- flex-direction: column;
- gap: 4px;
- }
-
- .signal-title {
- font-size: 15px;
- font-weight: 500;
- color: var(--white);
- }
-
- .signal-desc {
- font-size: 12px;
- color: var(--gray-text);
- }
-
- .signal-right {
+ letter-spacing: 0.1em;
+ text-transform: uppercase;
+ margin-bottom: 20px;
  display: flex;
  align-items: center;
- gap: 24px;
+ gap: 8px;
  }
 
- .signal-time {
- font-family: 'DM Mono', monospace;
- font-size: 11px;
- color: var(--gray-text);
+ .section-title::before {
+ content: '';
+ width: 4px; height: 4px;
+ border-radius: 50%;
  }
 
- .signal-status {
- font-size: 11px;
- padding: 4px 10px;
- border-radius: 4px;
- font-family: 'DM Mono', monospace;
- }
-
- .signal-status.active {
- background: var(--accent-dim);
- color: var(--accent);
- border: 1px solid var(--accent-border);
- }
-
- .signal-status.executed {
- background: rgba(255,255,255,0.05);
- color: var(--gray-light);
- }
-
- /* Push notification style */
- .push-banner {
- background: linear-gradient(90deg, var(--accent-dim) 0%, transparent 100%);
- border: 1px solid var(--accent-border);
- border-radius: 10px;
- padding: 16px 24px;
- margin-bottom: 24px;
- display: flex;
- align-items: center;
- justify-content: space-between;
+ /* DeFi Section */
+ .defi-section {
+ margin-bottom: 60px;
  animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.1s both;
  }
 
- .push-text {
- font-size: 14px;
+ .defi-title {
+ color: var(--defi-color);
+ }
+
+ .defi-title::before {
+ background: var(--defi-color);
+ }
+
+ .defi-list {
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+ }
+
+ .defi-item {
+ background: var(--gray-1);
+ border: 1px solid var(--border);
+ padding: 16px 24px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ border-radius: 8px;
+ transition: border-color 0.3s, background 0.2s;
+ }
+
+ .defi-item:hover {
+ border-color: var(--defi-color);
+ background: var(--gray-2);
+ }
+
+ .defi-name {
+ font-weight: 600;
  color: var(--white);
+ min-width: 150px;
  }
 
- .push-text strong {
- color: var(--accent);
- font-weight: 500;
+ .defi-chain {
+ color: var(--gray-text);
+ flex: 1;
+ text-align: center;
  }
 
- .push-btn {
- background: var(--accent);
- color: var(--black);
- border: none;
- padding: 8px 20px;
- border-radius: 6px;
+ .defi-apy {
+ color: var(--defi-color);
+ font-weight: bold;
+ font-family: 'DM Mono', monospace;
+ min-width: 100px;
+ text-align: right;
+ }
+
+ /* Trader Section */
+ .trader-section {
+ animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+ }
+
+ .trader-title {
+ color: var(--trader-color);
+ }
+
+ .trader-title::before {
+ background: var(--trader-color);
+ }
+
+ /* Trader Grid - 5 tiles */
+ .trader-grid {
+ display: grid;
+ grid-template-columns: repeat(5, 1fr);
+ gap: 4px;
+ min-height: 200px;
+ }
+
+ .tile {
+ background: var(--gray-3);
+ color: var(--white);
+ padding: 20px;
+ position: relative;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ aspect-ratio: 1 / 1;
+ cursor: pointer;
+ transition: opacity 0.2s, transform 0.2s, background 0.2s;
+ border: 1px solid var(--border);
+ }
+
+ .tile:hover {
+ opacity: 0.9;
+ transform: translateY(-4px);
+ border-color: var(--accent-border);
+ }
+
+ .tile.up {
+ background: linear-gradient(135deg, rgba(46,189,133,0.2) 0%, var(--gray-3) 100%);
+ border-color: rgba(46,189,133,0.3);
+ }
+
+ .tile.down {
+ background: linear-gradient(135deg, rgba(246,70,93,0.2) 0%, var(--gray-3) 100%);
+ border-color: rgba(246,70,93,0.3);
+ }
+
+ .tile-name {
+ font-family: 'DM Mono', monospace;
+ font-size: 28px;
+ font-weight: bold;
+ margin-bottom: 8px;
+ }
+
+ .tile-price {
+ font-family: 'DM Mono', monospace;
+ font-size: 14px;
+ color: var(--gray-light);
+ }
+
+ .tile-change {
+ font-family: 'DM Mono', monospace;
  font-size: 12px;
- font-weight: 500;
- cursor: none;
- transition: transform 0.2s, box-shadow 0.2s;
+ margin-top: 4px;
  }
 
- .push-btn:hover {
- transform: translateY(-2px);
- box-shadow: 0 4px 20px rgba(184,255,87,0.3);
+ .tile-change.up { color: var(--profit); }
+ .tile-change.down { color: var(--loss); }
+
+ /* Tooltip */
+ .tooltip {
+ visibility: hidden;
+ position: absolute;
+ bottom: 110%;
+ left: 50%;
+ transform: translateX(-50%);
+ width: 240px;
+ background: rgba(10, 10, 10, 0.95);
+ backdrop-filter: blur(8px);
+ color: var(--white);
+ padding: 16px;
+ border-radius: 8px;
+ font-size: 12px;
+ z-index: 100;
+ border: 1px solid var(--border);
+ box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+ opacity: 0;
+ transition: opacity 0.2s, visibility 0.2s;
+ }
+
+ .tile:hover .tooltip {
+ visibility: visible;
+ opacity: 1;
+ }
+
+ .tooltip-title {
+ color: var(--accent);
+ font-weight: 600;
+ margin-bottom: 8px;
+ font-size: 11px;
+ letter-spacing: 0.05em;
+ }
+
+ .tooltip-row {
+ display: flex;
+ justify-content: space-between;
+ margin-bottom: 6px;
+ }
+
+ .tooltip-label {
+ color: var(--gray-text);
+ }
+
+ .tooltip-value {
+ font-family: 'DM Mono', monospace;
  }
 
  /* Status bar */
@@ -379,10 +430,19 @@
  0%,100% { opacity: 1; } 50% { opacity: 0.3; }
  }
 
+ /* Responsive */
  @media (max-width: 900px) {
  .content { padding: 40px 24px; }
- .signal-card { flex-direction: column; align-items: flex-start; gap: 12px; }
- .signal-right { width: 100%; justify-content: space-between; }
+ .page-title { font-size: 36px; }
+ .trader-grid { grid-template-columns: repeat(3, 1fr); }
+ .defi-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+ .defi-chain { text-align: left; }
+ .defi-apy { text-align: left; }
+ }
+
+ @media (max-width: 600px) {
+ .trader-grid { grid-template-columns: repeat(2, 1fr); }
+ .page-title { font-size: 28px; }
  }
 </style>
 </head>
@@ -414,90 +474,165 @@
 <main>
  <div class="content">
  <div class="page-header">
- <h1 class="page-title">Alpha 推送</h1>
- <p class="page-subtitle">实时交易信号 · 策略执行 · 智能提醒</p>
+ <h1 class="page-title">Alpha Dashboard</h1>
+ <p class="page-subtitle">AI-Driven Web3 Strategy Hub · 实时交易信号 · 策略执行</p>
  </div>
 
- <!-- Push Banner -->
- <div class="push-banner">
- <span class="push-text">🔔 <strong>Alpha Signal</strong> 推送服务运行中 · 已连接至交易终端</span>
- <button class="push-btn">配置推送</button>
+ <!-- DeFi Section -->
+ <div class="defi-section">
+ <div class="section-title defi-title">[ 01 ] DeFi Alpha Strategies</div>
+ <div class="defi-list">
+ <div class="defi-item">
+ <span class="defi-name">Aave V4 Staking</span>
+ <span class="defi-chain">Optimism / Stablecoin</span>
+ <span class="defi-apy">14.20% APY</span>
  </div>
-
- <!-- Signals Feed -->
- <div class="signals-container">
- <!-- Signal 1 -->
- <div class="signal-card new">
- <div class="signal-left">
- <div class="signal-icon buy">BUY</div>
- <div class="signal-info">
- <span class="signal-title">BTC 突破信号</span>
- <span class="signal-desc">价格突破 $67,200 阻力位 · 成交量放大</span>
+ <div class="defi-item">
+ <span class="defi-name">Lido ETH Staking</span>
+ <span class="defi-chain">Ethereum / LSD</span>
+ <span class="defi-apy">3.85% APY</span>
  </div>
+ <div class="defi-item">
+ <span class="defi-name">GMX GLP</span>
+ <span class="defi-chain">Arbitrum / Derivatives</span>
+ <span class="defi-apy">22.40% APY</span>
  </div>
- <div class="signal-right">
- <span class="signal-time">2分钟前</span>
- <span class="signal-status active">ACTIVE</span>
+ <div class="defi-item">
+ <span class="defi-name">Pendle YT</span>
+ <span class="defi-chain">Multi-chain / Yield</span>
+ <span class="defi-apy">18.65% APY</span>
  </div>
+ <div class="defi-item">
+ <span class="defi-name">Curve 3Pool</span>
+ <span class="defi-chain">Ethereum / Stable</span>
+ <span class="defi-apy">4.20% APY</span>
  </div>
-
- <!-- Signal 2 -->
- <div class="signal-card">
- <div class="signal-left">
- <div class="signal-icon sell">SELL</div>
- <div class="signal-info">
- <span class="signal-title">ETH 止盈信号</span>
- <span class="signal-desc">触及目标价位 $3,500 · 建议减仓 50%</span>
- </div>
- </div>
- <div class="signal-right">
- <span class="signal-time">15分钟前</span>
- <span class="signal-status executed">EXECUTED</span>
  </div>
  </div>
 
- <!-- Signal 3 -->
- <div class="signal-card">
- <div class="signal-left">
- <div class="signal-icon alert">ALERT</div>
- <div class="signal-info">
- <span class="signal-title">SOL 波动预警</span>
- <span class="signal-desc">1小时波动率 > 5% · 注意风险控制</span>
+ <!-- Trader Section -->
+ <div class="trader-section">
+ <div class="section-title trader-title">[ 02 ] Trader Alpha Signals</div>
+ <div class="trader-grid">
+ <div class="tile up">
+ <div class="tile-name">ETH</div>
+ <div class="tile-price">$3,240.5</div>
+ <div class="tile-change up">+2.4%</div>
+ <div class="tooltip">
+ <div class="tooltip-title">AI ANALYSIS</div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Signal:</span>
+ <span class="tooltip-value" style="color: var(--profit);">BUY</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Confidence:</span>
+ <span class="tooltip-value">88%</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Target:</span>
+ <span class="tooltip-value">$3,500</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Smart Money:</span>
+ <span class="tooltip-value">Inflow Detected</span>
  </div>
  </div>
- <div class="signal-right">
- <span class="signal-time">32分钟前</span>
- <span class="signal-status active">ACTIVE</span>
+ </div>
+ <div class="tile down">
+ <div class="tile-name">BTC</div>
+ <div class="tile-price">$65,120</div>
+ <div class="tile-change down">-1.2%</div>
+ <div class="tooltip">
+ <div class="tooltip-title">AI ANALYSIS</div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Signal:</span>
+ <span class="tooltip-value" style="color: var(--loss);">SELL</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Confidence:</span>
+ <span class="tooltip-value">82%</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Support:</span>
+ <span class="tooltip-value">$63,500</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Volume:</span>
+ <span class="tooltip-value">High</span>
  </div>
  </div>
-
- <!-- Signal 4 -->
- <div class="signal-card">
- <div class="signal-left">
- <div class="signal-icon buy">BUY</div>
- <div class="signal-info">
- <span class="signal-title">BNB 抄底信号</span>
- <span class="signal-desc">RSI 超卖区域 · 支撑位 $590</span>
+ </div>
+ <div class="tile up">
+ <div class="tile-name">SOL</div>
+ <div class="tile-price">$142.1</div>
+ <div class="tile-change up">+5.8%</div>
+ <div class="tooltip">
+ <div class="tooltip-title">AI ANALYSIS</div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Signal:</span>
+ <span class="tooltip-value" style="color: var(--profit);">BUY</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Confidence:</span>
+ <span class="tooltip-value">91%</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Breakout:</span>
+ <span class="tooltip-value">$145</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Momentum:</span>
+ <span class="tooltip-value">Strong</span>
  </div>
  </div>
- <div class="signal-right">
- <span class="signal-time">1小时前</span>
- <span class="signal-status executed">EXECUTED</span>
+ </div>
+ <div class="tile down">
+ <div class="tile-name">BNB</div>
+ <div class="tile-price">$580.4</div>
+ <div class="tile-change down">-0.8%</div>
+ <div class="tooltip">
+ <div class="tooltip-title">AI ANALYSIS</div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Signal:</span>
+ <span class="tooltip-value" style="color: var(--loss);">HOLD</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Confidence:</span>
+ <span class="tooltip-value">75%</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Support:</span>
+ <span class="tooltip-value">$570</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Volatility:</span>
+ <span class="tooltip-value">Low</span>
  </div>
  </div>
-
- <!-- Signal 5 -->
- <div class="signal-card">
- <div class="signal-left">
- <div class="signal-icon alert">ALERT</div>
- <div class="signal-info">
- <span class="signal-title">市场宏观提醒</span>
- <span class="signal-desc">美联储讲话倒计时 30分钟 · 建议降低敞口</span>
+ </div>
+ <div class="tile up" style="background: var(--gray-4);">
+ <div class="tile-name">LINK</div>
+ <div class="tile-price">$18.2</div>
+ <div class="tile-change up">+1.5%</div>
+ <div class="tooltip">
+ <div class="tooltip-title">AI ANALYSIS</div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Signal:</span>
+ <span class="tooltip-value" style="color: var(--profit);">BUY</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Confidence:</span>
+ <span class="tooltip-value">79%</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Oracle:</span>
+ <span class="tooltip-value">Active</span>
+ </div>
+ <div class="tooltip-row">
+ <span class="tooltip-label">Staking:</span>
+ <span class="tooltip-value">+4.2% APR</span>
  </div>
  </div>
- <div class="signal-right">
- <span class="signal-time">2小时前</span>
- <span class="signal-status active">ACTIVE</span>
  </div>
  </div>
  </div>
@@ -506,9 +641,9 @@
 
 <!-- Status bar -->
 <div class="status-bar">
- <span class="status-item online">推送服务在线</span>
- <span class="status-item">今日信号: 12</span>
- <span class="status-item">最后推送: <span id="lastPush">--</span></span>
+ <span class="status-item online">在线</span>
+ <span class="status-item">数据延迟: 150ms</span>
+ <span class="status-item">最后更新: <span id="lastUpdate">--</span></span>
 </div>
 
 <script>
@@ -528,7 +663,7 @@
  const now = new Date();
  const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
  document.getElementById('navTime').textContent = timeStr;
- document.getElementById('lastPush').textContent = timeStr;
+ document.getElementById('lastUpdate').textContent = now.toLocaleString('zh-CN');
  }
  updateTime();
  setInterval(updateTime, 1000);
