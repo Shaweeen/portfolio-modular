@@ -625,7 +625,7 @@
  <div class="page-header">
  <h1 class="page-title">交易数据</h1>
  <p class="page-subtitle">交易数据 Trader/Date</p>
- <button class="history-btn" onclick="showHistory()">📊 查看历史记录</button>
+ <button class="history-btn" id="historyBtn">📊 查看历史记录</button>
  </div>
 
  <!-- Cards Container -->
@@ -637,8 +637,7 @@
 
 <!-- Status bar -->
 <div class="status-bar">
- <span class="status-item online">在线</span>
- <span class="status-item">数据延迟: 150ms</span>
+ <span class="status-item" style="margin-left:auto; font-family: 'DM Mono', monospace;">21MxBitcoin LABS</span>
 </div>
 
 <!-- Card Template -->
@@ -696,6 +695,21 @@ setInterval(updateTime, 1000);
 
  // JSON数据源
  const JSON_URL = './data/trade_data.json';
+
+ // 绑定历史记录按钮事件
+document.addEventListener('DOMContentLoaded', function() {
+ const historyBtn = document.getElementById('historyBtn');
+ if (historyBtn) {
+ historyBtn.addEventListener('click', function() {
+ showHistory();
+ });
+ // 移动端触摸支持
+ historyBtn.addEventListener('touchend', function(e) {
+ e.preventDefault();
+ showHistory();
+ });
+ }
+});
 
 // 绘制Sparkline曲线 - 4种情况直接绘制
 function drawSparkline(canvas, data, isLong, isProfit, entryPrice) {
