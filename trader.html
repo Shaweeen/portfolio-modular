@@ -875,13 +875,26 @@ function drawSparkline(canvas, data, isLong, isProfit) {
  }
  }
 
- // 生成模拟曲线数据
- function generateMockCurve(isLong, isProfit, points) {
+// 生成模拟曲线数据 - 按4种情况生成
+function generateMockCurve(isLong, isProfit, points) {
  const data = [];
  const basePrice = 100;
- // 修正：做空盈利和做多亏损时，价格应该下跌（trend=-1）
- // 做多盈利和做空亏损时，价格应该上涨（trend=1）
- const trend = (isLong && isProfit) || (!isLong && !isProfit) ? 1 : -1;
+ 
+ // 4种情况决定价格趋势方向
+ // 1. 做多 + 正盈利 = 价格上涨 (trend = 1)
+ // 2. 做多 + 负盈利 = 价格下跌 (trend = -1)
+ // 3. 做空 + 正盈利 = 价格下跌 (trend = -1)
+ // 4. 做空 + 负盈利 = 价格上涨 (trend = 1)
+ let trend;
+ if (isLong && isProfit) {
+ trend = 1; // 做多盈利 → 价格上涨
+ } else if (isLong && !isProfit) {
+ trend = -1; // 做多亏损 → 价格下跌
+ } else if (!isLong && isProfit) {
+ trend = -1; // 做空盈利 → 价格下跌
+ } else {
+ trend = 1; // 做空亏损 → 价格上涨
+ }
  
  for (let i = 0; i < points; i++) {
  const progress = i / (points - 1);
@@ -890,7 +903,7 @@ function drawSparkline(canvas, data, isLong, isProfit) {
  data.push(basePrice + direction + noise);
  }
  return data;
- }
+}
 
  // 页面加载完成运行
  window.onload = renderTraderCards;
