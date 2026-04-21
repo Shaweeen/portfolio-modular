@@ -512,23 +512,22 @@
  const container = document.getElementById('trade-list');
 
  container.innerHTML = trades.map(item => {
- const isOpen = item.status === 'open';
+ const isOpen = item.status === 'open' || item.status === undefined;
  const isLong = item.side === 'LONG';
  const entryPrice = parseFloat(item.entry);
- const currentOrExit = isOpen ? parseFloat(item.last) : parseFloat(item.exit);
- const priceDiff = currentOrExit - entryPrice;
- const pricePercent = ((priceDiff / entryPrice) * 100).toFixed(1);
+ const currentOrExitPrice = isOpen ? item.last : (item.exit || item.last);
+ 
+ // 处理pnl格式（可能带%或不带）
+ let pnlValue = item.pnl;
+ if (typeof pnlValue === 'string' && pnlValue.includes('%')) {
+ pnlValue = pnlValue.replace('%', '');
+ }
+ const pnlNum = parseFloat(pnlValue);
  
  // 生成价格曲线数据点
  const baseY = 25;
  const amplitude = 12;
  const trend = isLong ? -1 : 1;
- const points = [];
- for (let i = 0; i <= 100; i += 5) {
- const x = i;
- const y = baseY + trend * amplitude * Math.sin(i * 0.05) + (i / 100) * trend * 8;
- points.push(`${x},${y}`);
- }
  
  // 计算开仓点在曲线上的位置 (x=30)
  const entryX = 30;
@@ -540,14 +539,14 @@
  
  const entryLabel = isLong ? 'B' : 'S';
  const exitLabel = isLong ? 'S' : 'B';
- const strokeColor = parseFloat(item.pnl) >= 0 ? '#2ebd85' : '#f6465d';
+ const strokeColor = pnlNum >= 0 ? '#2ebd85' : '#f6465d';
  
  return `
  <div class="trader-card">
  <div class="card-top">
  <div class="symbol-pnl">
  <div class="symbol-name">${item.symbol}</div>
- <div class="pnl-value ${parseFloat(item.pnl) >= 0 ? 'pnl-positive' : 'pnl-negative'}">
+ <div class="pnl-value ${pnlNum >= 0 ? 'pnl-positive' : 'pnl-negative'}">
  ${item.pnl}%
  </div>
  </div>
@@ -567,7 +566,7 @@
  </div>
  <div class="data-grid">
  <div class="data-item"><span class="label">开仓价</span><span class="val">${item.entry}</span></div>
- <div class="data-item"><span class="label">${isOpen ? '最新价' : '关单价'}</span><span class="val">${isOpen ? item.last : item.exit}</span></div>
+ <div class="data-item"><span class="label">${isOpen ? '最新价' : '关单价'}</span><span class="val">${currentOrExitPrice}</span></div>
  <div class="data-item"><span class="label">杠杆</span><span class="val">${item.lev}X</span></div>
  <div class="data-item"><span class="side-tag ${isLong ? 'side-long' : 'side-short'}">${isOpen ? (isLong ? '正在做多' : '正在做空') : (isLong ? '已平多' : '已平空')}</span></div>
  </div>
