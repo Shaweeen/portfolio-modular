@@ -1048,8 +1048,24 @@ async function loadSheetData() {
  headerRow.innerHTML = headerHTML;
  tbody.appendChild(headerRow);
  
- // 数据行 - 最多显示9行 (第2-10行)
- const displayData = rows.slice(0, 9);
+ // 按收益率排序（收益/成本），成本为0时按收益绝对值排序
+ const sortedRows = rows.sort((a, b) => {
+ const costA = a[5] || 0;
+ const costB = b[5] || 0;
+ const profitA = a[6] || 0;
+ const profitB = b[6] || 0;
+ 
+ // 计算收益率
+ const roiA = costA > 0 ? profitA / costA : profitA;
+ const roiB = costB > 0 ? profitB / costB : profitB;
+ 
+ return roiB - roiA; // 从高到低
+ });
+ 
+ // 固定显示9行数据（第2-10行），不足9行用空行填充
+ const displayData = sortedRows.slice(0, 9);
+ const emptyRowsNeeded = 9 - displayData.length;
+ 
  displayData.forEach((row, index) => {
  const tr = document.createElement('tr');
  
@@ -1080,24 +1096,39 @@ async function loadSheetData() {
  tbody.appendChild(tr);
  });
  
- // 锁定行 - 超过9行显示收缩提示
- if (rows.length > 9) {
+ // 填充空行（如果数据不足9行）
+ for (let i = 0; i < emptyRowsNeeded; i++) {
+ const emptyRow = document.createElement('tr');
+ const rowNum = displayData.length + i + 2;
+ let emptyHTML = `<td class="row-num">${rowNum}</td>`;
+ for (let j = 0; j < headers.length; j++) {
+ emptyHTML += `<td style="color: #333;">-</td>`;
+ }
+ emptyRow.innerHTML = emptyHTML;
+ tbody.appendChild(emptyRow);
+ }
+ 
+ // 锁定行 - 固定放在第10行位置
  const lockedRow = document.createElement('tr');
  lockedRow.className = 'locked-row';
  lockedRow.innerHTML = `
- <td class="row-num">${11}</td>
- <td colspan="${headers.length}" style="text-align: center; color: #555; font-style: italic; padding: 20px;">
- 🔒 RESTRICTED DATA: ${rows.length - 9} MORE ITEMS HIDDEN
- </td>
+ <td class="row-num">11</td>
+ <td style="text-align: center; color: #555; font-style: italic; padding: 20px 10px;">🔒</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">RESTRICTED</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">DATA:</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">RECENT</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">9</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">ITEMS</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">ONLY</td>
+ <td style="color: #444;">-</td>
  `;
  tbody.appendChild(lockedRow);
- }
  
  } catch (err) {
  console.error('数据加载失败:', err);
  tbody.innerHTML = `
  <tr>
- <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
+ <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
  数据加载失败，请检查网络连接
  </td>
  </tr>
