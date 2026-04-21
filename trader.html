@@ -24,6 +24,8 @@
  --accent-border: rgba(184,255,87,0.25);
  --border: rgba(255,255,255,0.07);
  --border-strong: rgba(255,255,255,0.12);
+ --profit: #2ebd85;
+ --loss: #f6465d;
  }
 
  html, body {
@@ -190,114 +192,78 @@
  letter-spacing: 0.02em;
  }
 
-/* Trading Data Grid - 2行3列布局 */
-.data-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-top: 32px;
-  animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
-}
-
- .data-card {
- background: var(--gray-1);
- border: 1px solid var(--border);
- border-radius: 10px;
- padding: 24px;
- transition: border-color 0.2s, transform 0.2s;
+ /* Trading Data Grid - 2行3列布局 */
+ .cards-container {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 24px;
+ margin-top: 32px;
+ animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
  }
 
- .data-card:hover {
- border-color: var(--accent-border);
- transform: translateY(-4px);
- }
-
- .card-header {
- display: flex;
- justify-content: space-between;
- align-items: center;
- margin-bottom: 16px;
- }
-
- .card-symbol {
- font-family: 'DM Mono', monospace;
- font-size: 18px;
- font-weight: 500;
- color: var(--white);
- }
-
- .card-change {
- font-family: 'DM Mono', monospace;
- font-size: 14px;
- padding: 4px 10px;
- border-radius: 4px;
- }
-
- .card-change.pos {
- background: rgba(52,168,83,0.18);
- color: #34a853;
- }
-
- .card-change.neg {
- background: rgba(234,67,53,0.18);
- color: #ea4335;
- }
-
- .card-price {
- font-family: 'DM Mono', monospace;
- font-size: 32px;
- font-weight: 500;
- color: var(--white);
- margin-bottom: 8px;
- }
-
- .card-volume {
- font-size: 12px;
- color: var(--gray-text);
- font-family: 'DM Mono', monospace;
- }
-
- .card-chart {
- margin-top: 20px;
- height: 60px;
- display: flex;
- align-items: flex-end;
- gap: 4px;
- }
-
- .chart-bar {
- flex: 1;
- border-radius: 2px 2px 0 0;
- background: var(--gray-5);
- transition: background 0.2s;
- }
-
- .chart-bar.up { background: #34a853; }
- .chart-bar.down { background: #ea4335; }
-
- /* Trader Cards */
- .trader-card {
+ /* Trade Card Template Styles */
+ .trade-card {
  background: var(--gray-1);
  border: 1px solid var(--border);
  border-radius: 12px;
  padding: 20px;
  transition: border-color 0.2s, transform 0.2s;
+ position: relative;
+ overflow: hidden;
  }
 
- .trader-card:hover {
+ .trade-card:hover {
  border-color: var(--accent-border);
  transform: translateY(-4px);
  }
 
-.card-top {
+ .trade-card::before {
+ content: '';
+ position: absolute;
+ top: 0; left: 0; right: 0;
+ height: 3px;
+ background: var(--gray-5);
+ transition: background 0.3s;
+ }
+
+ .trade-card.positive::before { background: var(--profit); }
+ .trade-card.negative::before { background: var(--loss); }
+
+ .card-content {
+ display: flex;
+ flex-direction: column;
+ gap: 12px;
+ }
+
+ .main-info {
  display: flex;
  justify-content: space-between;
  align-items: flex-start;
- margin-bottom: 8px;
-}
+ gap: 16px;
+ }
 
- .symbol-pnl {
+ .chart-container {
+ width: 140px;
+ height: 70px;
+ flex-shrink: 0;
+ }
+
+ .sparkline {
+ width: 100%;
+ height: 100%;
+ }
+
+ .pnl-info {
  flex: 1;
+ display: flex;
+ flex-direction: column;
+ gap: 8px;
+ }
+
+ .symbol-row {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
  }
 
  .symbol-name {
@@ -305,114 +271,94 @@
  font-size: 16px;
  font-weight: 500;
  color: var(--white);
- margin-bottom: 8px;
  }
 
- .verify-icon {
- color: var(--accent);
- font-size: 12px;
- margin-left: 4px;
- }
-
- .pnl-value {
+ .time-ago {
+ font-size: 11px;
+ color: var(--gray-text);
  font-family: 'DM Mono', monospace;
- font-size: 24px;
+ }
+
+ .pnl-percentage {
+ font-family: 'DM Mono', monospace;
+ font-size: 28px;
  font-weight: 500;
  }
 
- .pnl-positive { color: #2ebd85; }
- .pnl-negative { color: #f6465d; }
+ .pnl-percentage.positive { color: var(--profit); }
+ .pnl-percentage.negative { color: var(--loss); }
 
-.chart-area {
- width: 200px;
- height: 90px;
-}
+ .meta-tags {
+ display: flex;
+ gap: 8px;
+ flex-wrap: wrap;
+ }
 
-.chart-svg {
- width: 100%;
- height: 100%;
-}
-
-.entry-point {
+ .lev-tag, .side-tag {
  font-family: 'DM Mono', monospace;
- font-size: 9px;
- font-weight: 700;
-}
+ font-size: 10px;
+ padding: 3px 8px;
+ border-radius: 3px;
+ font-weight: 500;
+ }
 
-.exit-point {
- font-family: 'DM Mono', monospace;
- font-size: 9px;
- font-weight: 700;
-}
+ .lev-tag {
+ background: var(--gray-3);
+ color: var(--gray-light);
+ }
 
-.pnl-row {
+ .side-tag.long {
+ background: rgba(46,189,133,0.15);
+ color: var(--profit);
+ }
+
+ .side-tag.short {
+ background: rgba(246,70,93,0.15);
+ color: var(--loss);
+ }
+
+ .pnl-status-row {
  display: flex;
  justify-content: space-between;
  align-items: center;
- padding: 8px 0;
- margin: 8px 0;
+ padding: 10px 0;
  border-top: 1px solid var(--border);
  border-bottom: 1px solid var(--border);
-}
+ }
 
-.pnl-label {
- font-size: 11px;
+ .pnl-status-label {
+ font-size: 12px;
  color: var(--gray-text);
  font-family: 'DM Mono', monospace;
-}
+ }
 
-.pnl-amount {
+ .pnl-status-value {
  font-family: 'DM Mono', monospace;
  font-size: 16px;
  font-weight: 500;
-}
-
-.trader-card .data-grid {
- display: grid;
- grid-template-columns: repeat(2, 1fr);
- gap: 8px;
- margin: 12px 0 0 0;
- font-size: 12px;
-}
-
- .data-item {
- display: flex;
- flex-direction: column;
- gap: 4px;
  }
 
- .data-item .label {
- font-size: 11px;
+ .pnl-status-value.positive { color: var(--profit); }
+ .pnl-status-value.negative { color: var(--loss); }
+
+ .price-details {
+ display: grid;
+ grid-template-columns: repeat(2, 1fr);
+ gap: 10px;
+ font-size: 12px;
+ }
+
+ .price-details span {
  color: var(--gray-text);
  font-family: 'DM Mono', monospace;
  }
 
- .data-item .val {
- font-size: 14px;
+ .price-details .val {
  color: var(--white);
- font-family: 'DM Mono', monospace;
+ margin-left: 4px;
  }
 
- .side-tag {
- display: inline-block;
- padding: 4px 10px;
- border-radius: 4px;
- font-size: 11px;
- font-weight: 500;
- font-family: 'DM Mono', monospace;
- }
-
- .side-long {
- background: rgba(52,168,83,0.18);
- color: #34a853;
- }
-
-.side-short {
- background: rgba(234,67,53,0.18);
- color: #ea4335;
-}
-
-/* Status bar */
+ /* Status bar */
  .status-bar {
  position: fixed;
  bottom: 0; left: 0; right: 0;
@@ -448,14 +394,14 @@
  0%,100% { opacity: 1; } 50% { opacity: 0.3; }
  }
 
-@media (max-width: 900px) {
-  .content { padding: 40px 24px; }
-  .data-grid { grid-template-columns: repeat(2, 1fr); }
-}
+ @media (max-width: 900px) {
+ .content { padding: 40px 24px; }
+ .cards-container { grid-template-columns: repeat(2, 1fr); }
+ }
 
-@media (max-width: 600px) {
-  .data-grid { grid-template-columns: 1fr; }
-}
+ @media (max-width: 600px) {
+ .cards-container { grid-template-columns: 1fr; }
+ }
 </style>
 </head>
 <body>
@@ -490,7 +436,8 @@
  <p class="page-subtitle">交易数据 Trader/Date</p>
  </div>
 
- <div class="data-grid" id="trade-list">
+ <!-- Cards Container -->
+ <div class="cards-container" id="cards-container">
  <!-- 交易卡片将通过 JavaScript 动态生成 -->
  </div>
  </div>
@@ -502,6 +449,38 @@
  <span class="status-item">数据延迟: 150ms</span>
  <span class="status-item">最后更新: <span id="lastUpdate">--</span></span>
 </div>
+
+<!-- Card Template -->
+<template id="card-template">
+ <div class="trade-card">
+ <div class="card-content">
+ <div class="main-info">
+ <div class="chart-container">
+ <canvas class="sparkline" width="140" height="70"></canvas>
+ </div>
+ <div class="pnl-info">
+ <div class="symbol-row">
+ <span class="symbol-name"></span>
+ <span class="time-ago"></span>
+ </div>
+ <div class="pnl-percentage"></div>
+ <div class="meta-tags">
+ <span class="lev-tag"></span>
+ <span class="side-tag"></span>
+ </div>
+ </div>
+ </div>
+ <div class="pnl-status-row">
+ <span class="pnl-status-label">盈亏状态</span>
+ <span class="pnl-status-value"></span>
+ </div>
+ <div class="price-details">
+ <span>开仓: <span class="val entry-val"></span></span>
+ <span>当前: <span class="val last-val"></span></span>
+ </div>
+ </div>
+ </div>
+</template>
 
 <script>
  // Custom cursor
@@ -525,124 +504,163 @@
  updateTime();
  setInterval(updateTime, 1000);
 
- // 核心：读取 GitHub 上的数据并显示成卡片
- async function loadTraderData() {
- try {
- // 1. 获取 Worker 推送到 GitHub 的最新 JSON 文件
- const response = await fetch('./data/trade_data.json');
- const trades = await response.json();
- const container = document.getElementById('trade-list');
+ // JSON数据源
+ const JSON_URL = './data/trade_data.json';
 
- container.innerHTML = trades.map(item => {
- const isOpen = item.status === 'open' || item.status === undefined;
- const isLong = item.side === 'LONG';
- const entryPrice = parseFloat(item.entry);
- const currentOrExitPrice = isOpen ? item.last : (item.exit || item.last);
+ // 绘制Sparkline曲线 - 根据盈亏方向
+ function drawSparkline(canvas, data, isLong, isProfit) {
+ const ctx = canvas.getContext('2d');
+ const width = canvas.width;
+ const height = canvas.height;
  
- // 处理pnl格式（可能带%或不带）
- let pnlValue = item.pnl;
- if (typeof pnlValue === 'string' && pnlValue.includes('%')) {
- pnlValue = pnlValue.replace('%', '');
- }
- const pnlNum = parseFloat(pnlValue);
+ // 清空画布
+ ctx.clearRect(0, 0, width, height);
  
- // 生成价格曲线 - 根据盈亏决定曲线方向
- // 做多浮盈=向上曲线, 做多浮亏=向下曲线
- // 做空浮盈=向下曲线, 做空浮亏=向上曲线
- const baseY = 45;
- const amplitude = 25;
- const isProfit = pnlNum >= 0;
+ if (!data || data.length < 2) return;
  
- // 曲线方向: 盈利时从开仓点向 profitable 方向走，亏损时向亏损方向走
+ const min = Math.min(...data);
+ const max = Math.max(...data);
+ const range = max - min || 1;
+ 
+ // 根据盈亏和方向决定曲线走势
  // 做多盈利=向上, 做空盈利=向下, 做多亏损=向下, 做空亏损=向上
  const curveDirection = (isLong && isProfit) || (!isLong && !isProfit) ? -1 : 1;
  
- // 生成曲线点 - 从左侧开始，经过开仓点，向盈亏方向延伸
- let pathD = '';
- const startX = 0;
- const entryX = 30;
- const endX = 100;
+ // 计算开仓点位置 (约30%位置)
+ const entryIndex = Math.floor(data.length * 0.3);
+ const entryPrice = data[entryIndex];
  
- // 计算开仓点Y坐标 (中间位置)
- const entryY = baseY;
+ // 绘制价格曲线
+ ctx.beginPath();
+ ctx.strokeStyle = isProfit ? '#2ebd85' : '#f6465d';
+ ctx.lineWidth = 2;
  
- // 构建曲线路径
- for (let i = 0; i <= 100; i += 5) {
- const x = i;
- // 曲线形状: 从左侧开始，在开仓点(30)附近转折，然后向盈亏方向延伸
- let yOffset = 0;
- if (i < entryX) {
- // 开仓点前: 从反方向接近开仓点
- yOffset = curveDirection * amplitude * (entryX - i) / entryX * 0.5;
- } else {
- // 开仓点后: 向盈亏方向延伸
- yOffset = -curveDirection * amplitude * (i - entryX) / (endX - entryX) * 1.2;
+ // 生成平滑曲线
+ data.forEach((price, i) => {
+ const x = (i / (data.length - 1)) * width;
+ // 根据盈亏方向调整Y坐标
+ let normalizedY = ((price - min) / range);
+ if (curveDirection === -1) {
+ normalizedY = 1 - normalizedY; // 反转，盈利向上
  }
- // 添加一些波动
- yOffset += Math.sin(i * 0.1) * 5;
+ const y = normalizedY * (height - 10) + 5;
  
- const y = entryY + yOffset;
  if (i === 0) {
- pathD = `M${x},${y}`;
+ ctx.moveTo(x, y);
  } else {
- pathD += ` L${x},${y}`;
+ // 使用贝塞尔曲线使线条更平滑
+ const prevX = ((i - 1) / (data.length - 1)) * width;
+ const prevPrice = data[i - 1];
+ let prevNormalizedY = ((prevPrice - min) / range);
+ if (curveDirection === -1) {
+ prevNormalizedY = 1 - prevNormalizedY;
  }
+ const prevY = prevNormalizedY * (height - 10) + 5;
+ const cpX = (prevX + x) / 2;
+ ctx.quadraticCurveTo(cpX, prevY, x, y);
+ }
+ });
+ ctx.stroke();
+ 
+ // 绘制开仓点标记
+ const entryX = (entryIndex / (data.length - 1)) * width;
+ let entryNormalizedY = ((entryPrice - min) / range);
+ if (curveDirection === -1) {
+ entryNormalizedY = 1 - entryNormalizedY;
+ }
+ const entryY = entryNormalizedY * (height - 10) + 5;
+ 
+ // 绘制圆点
+ ctx.beginPath();
+ ctx.arc(entryX, entryY, 4, 0, Math.PI * 2);
+ ctx.fillStyle = isProfit ? '#2ebd85' : '#f6465d';
+ ctx.fill();
+ 
+ // 绘制B/S标签
+ ctx.font = 'bold 10px "DM Mono", monospace';
+ ctx.fillStyle = isProfit ? '#2ebd85' : '#f6465d';
+ ctx.textAlign = 'center';
+ const label = isLong ? 'B' : 'S';
+ ctx.fillText(label, entryX, entryY - 8);
+ }
+
+ // 渲染交易卡片
+ async function renderTraderCards() {
+ try {
+ const response = await fetch(JSON_URL);
+ const trades = await response.json();
+ const container = document.getElementById('cards-container');
+ const template = document.getElementById('card-template');
+ 
+ container.innerHTML = ''; // 清空容器
+ 
+ trades.forEach((trade, index) => {
+ // 1. 克隆模板
+ const clone = template.content.cloneNode(true);
+ const card = clone.querySelector('.trade-card');
+ 
+ // 2. 判断盈亏和方向
+ const isProfit = parseFloat(trade.pnl) >= 0;
+ const isLong = trade.side === 'LONG';
+ const themeClass = isProfit ? 'positive' : 'negative';
+ 
+ // 3. 添加主题类
+ card.classList.add(themeClass);
+ 
+ // 4. 注入基础数据
+ card.querySelector('.symbol-name').textContent = trade.symbol;
+ card.querySelector('.pnl-percentage').textContent = trade.pnl + '%';
+ card.querySelector('.pnl-percentage').classList.add(themeClass);
+ card.querySelector('.lev-tag').textContent = trade.lev + 'X';
+ 
+ const sideTag = card.querySelector('.side-tag');
+ sideTag.textContent = isLong ? '做多' : '做空';
+ sideTag.classList.add(isLong ? 'long' : 'short');
+ 
+ card.querySelector('.pnl-status-value').textContent = 
+ (trade.profit || (parseFloat(trade.pnl) * parseFloat(trade.entry) / 100).toFixed(2)) + ' USDT';
+ card.querySelector('.pnl-status-value').classList.add(themeClass);
+ 
+ card.querySelector('.entry-val').textContent = trade.entry;
+ card.querySelector('.last-val').textContent = trade.last || trade.exit || '--';
+ 
+ // 时间显示 (模拟)
+ card.querySelector('.time-ago').textContent = '刚刚';
+ 
+ // 5. 绘制趋势图
+ const canvas = clone.querySelector('.sparkline');
+ if (trade.history && trade.history.length > 0) {
+ drawSparkline(canvas, trade.history, isLong, isProfit);
+ } else {
+ // 如果没有历史数据，生成模拟曲线
+ const mockData = generateMockCurve(isLong, isProfit, 20);
+ drawSparkline(canvas, mockData, isLong, isProfit);
  }
  
- // 开仓点标记位置
- const entryMarkerY = entryY + curveDirection * amplitude * 0.3 + Math.sin(entryX * 0.1) * 5;
- 
- // 关单点位置 (x=75)
- const exitX = 75;
- const exitY = entryY - curveDirection * amplitude * (exitX - entryX) / (endX - entryX) * 1.2 + Math.sin(exitX * 0.1) * 5;
- 
- const entryLabel = isLong ? 'B' : 'S';
- const exitLabel = isLong ? 'S' : 'B';
- const strokeColor = pnlNum >= 0 ? '#2ebd85' : '#f6465d';
- 
- return `
- <div class="trader-card">
- <div class="card-top">
- <div class="symbol-pnl">
- <div class="symbol-name">${item.symbol}</div>
- <div class="pnl-value ${pnlNum >= 0 ? 'pnl-positive' : 'pnl-negative'}">
- ${pnlValue}%
- </div>
- </div>
- <svg class="chart-area" viewBox="0 0 100 90" preserveAspectRatio="none">
- <!-- 价格曲线 -->
- <path d="${pathD}" 
- stroke="${strokeColor}" stroke-width="1.5" fill="none"/>
- <!-- 开仓点标记 -->
- <circle cx="${entryX}" cy="${entryMarkerY}" r="3" fill="${strokeColor}"/>
- <text x="${entryX - 4}" y="${entryMarkerY - 6}" class="entry-point" fill="${strokeColor}">${entryLabel}</text>
- ${!isOpen ? `
- <!-- 关单点标记 (仅已关闭订单显示) -->
- <circle cx="${exitX}" cy="${exitY}" r="3" fill="${strokeColor}"/>
- <text x="${exitX - 4}" y="${exitY - 6}" class="exit-point" fill="${strokeColor}">${exitLabel}</text>
- ` : ''}
- </svg>
- </div>
- <div class="pnl-row">
- <span class="pnl-label">盈亏状态</span>
- <span class="pnl-amount ${pnlNum >= 0 ? 'pnl-positive' : 'pnl-negative'}">${item.profit || (pnlNum * entryPrice / 100).toFixed(2)} USDT</span>
- </div>
- <div class="data-grid">
- <div class="data-item"><span class="label">开仓价</span><span class="val">${item.entry}</span></div>
- <div class="data-item"><span class="label">${isOpen ? '最新价' : '关单价'}</span><span class="val">${currentOrExitPrice}</span></div>
- <div class="data-item"><span class="label">杠杆</span><span class="val">${item.lev}X</span></div>
- <div class="data-item"><span class="side-tag ${isLong ? 'side-long' : 'side-short'}">${isOpen ? (isLong ? '正在做多' : '正在做空') : (isLong ? '已平多' : '已平空')}</span></div>
- </div>
- </div>
- `;
- }).join('');
- } catch (e) {
- console.error("加载交易数据失败:", e);
+ container.appendChild(clone);
+ });
+ } catch (err) {
+ console.error('渲染失败:', err);
  }
  }
 
- // 页面加载时运行
- window.onload = loadTraderData;
+ // 生成模拟曲线数据
+ function generateMockCurve(isLong, isProfit, points) {
+ const data = [];
+ const basePrice = 100;
+ const trend = (isLong && isProfit) || (!isLong && !isProfit) ? 1 : -1;
+ 
+ for (let i = 0; i < points; i++) {
+ const progress = i / (points - 1);
+ const noise = Math.sin(i * 0.5) * 5;
+ const direction = trend * progress * 20;
+ data.push(basePrice + direction + noise);
+ }
+ return data;
+ }
+
+ // 页面加载完成运行
+ window.onload = renderTraderCards;
 </script>
 
 </body>
