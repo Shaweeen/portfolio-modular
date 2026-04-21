@@ -748,8 +748,9 @@
  const x = (i / (chartData.length - 1)) * width;
  // 归一化Y坐标 (0-1)
  let normalizedY = (price - chartMin) / chartRange;
- // 根据方向反转
- if (!shouldInvertY) {
+ // 修正：做多盈利和做空亏损时，高价应该在上方（Y坐标小）
+ // 所以需要反转：高价(1) -> 小Y，低价(0) -> 大Y
+ if (shouldInvertY) {
  normalizedY = 1 - normalizedY;
  }
  const y = normalizedY * (height - 10) + 5;
@@ -763,7 +764,7 @@
  // 开仓点后的曲线
  const prevX = ((i - 1) / (chartData.length - 1)) * width;
  let prevNormalizedY = (chartData[i-1] - chartMin) / chartRange;
- if (!shouldInvertY) {
+ if (shouldInvertY) {
  prevNormalizedY = 1 - prevNormalizedY;
  }
  const prevY = prevNormalizedY * (height - 10) + 5;
@@ -776,7 +777,7 @@
  // 绘制开仓点标记
  const entryX = (entryIndex / (chartData.length - 1)) * width;
  let entryNormalizedY = (entryPrice - chartMin) / chartRange;
- if (!shouldInvertY) {
+ if (shouldInvertY) {
  entryNormalizedY = 1 - entryNormalizedY;
  }
  const entryY = entryNormalizedY * (height - 10) + 5;
