@@ -696,38 +696,131 @@ setInterval(updateTime, 1000);
  // JSON数据源
  const JSON_URL = './data/trade_data.json';
 
- // 绑定历史记录按钮事件 - 修复移动端触摸问题
-document.addEventListener('DOMContentLoaded', function() {
- const historyBtn = document.getElementById('historyBtn');
- if (historyBtn) {
- // 使用指针事件统一处理鼠标和触摸
- let isHandled = false;
+ // 绑定历史记录按钮事件 - 使用首页同款的模态框方案
+document.getElementById('historyBtn').addEventListener('click', showHistoryModal);
+
+// 显示历史记录模态框 - 仿照首页空投弹窗样式
+async function showHistoryModal() {
+ try {
+ const res = await fetch('https://trader.brandonwilson8855.workers.dev/history');
+ const { total, data } = await res.json();
  
- const handleHistoryClick = function(e) {
- if (isHandled) return;
- isHandled = true;
- showHistory();
- setTimeout(() => { isHandled = false; }, 300);
- };
+ // 创建模态框 - 使用首页同款样式
+ const modal = document.createElement('div');
+ modal.style.cssText = `
+ position: fixed;
+ inset: 0;
+ background: rgba(0,0,0,0.85);
+ backdrop-filter: blur(10px);
+ z-index: 10000;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ padding: 20px;
+ `;
  
- // 同时支持 click 和 touchend，但防止重复触发
- historyBtn.addEventListener('click', handleHistoryClick);
+ // 表格行生成
+ const rows = data.map(item => {
+ const pnlNum = parseFloat(item.pnl);
+ const profitNum = parseFloat(item.profit || 0);
+ const isPositive = pnlNum >= 0;
+ const date = item.time ? new Date(item.time).toLocaleDateString('zh-CN', {day: '2-digit', month: '2-digit', year: 'numeric'}) : new Date().toLocaleDateString('zh-CN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+ return `
+ <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+ <td style="padding: 10px; color: #fff; font-size: 11px;">${item.symbol}</td>
+ <td style="padding: 10px; text-align: center; font-size: 11px;"><span style="color: ${item.side === 'LONG' ? '#34a853' : '#f6465d'}">${item.side}</span></td>
+ <td style="padding: 10px; text-align: right; color: ${isPositive ? '#34a853' : '#f6465d'}; font-size: 11px;">${item.pnl}%</td>
+ <td style="padding: 10px; text-align: right; color: ${profitNum >= 0 ? '#34a853' : '#f6465d'}; font-size: 11px;">${item.profit || '--'} USDT</td>
+ <td style="padding: 10px; text-align: right; color: #aaa; font-size: 11px;">${date}</td>
+ </tr>
+ `;
+ }).join('');
  
- // 移动端优化：touchend 不阻止默认行为，但设置标记
- historyBtn.addEventListener('touchend', function(e) {
- // 不阻止默认行为，让浏览器正常处理
- handleHistoryClick(e);
+ modal.innerHTML = `
+ <div style="
+ background: #0a0a0a;
+ border: 1px solid rgba(184,255,87,0.25);
+ border-radius: 12px;
+ width: 90%;
+ max-width: 700px;
+ max-height: 80vh;
+ overflow-y: auto;
+ font-family: 'DM Mono', monospace;
+ ">
+ <div style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.07);">
+ <h3 style="color: #b8ff57; margin: 0; font-size: 16px; text-align: center;">📊 历史交易记录</h3>
+ </div>
+ <div style="padding: 24px;">
+ <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px; background: rgba(184,255,87,0.05); border-radius: 6px;">
+ <span style="color: #666; font-size: 12px;">总计记录</span>
+ <span style="color: #b8ff57; font-size: 18px; font-weight: 600;">${total || data.length} 条</span>
+ </div>
+ <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+ <thead>
+ <tr style="background: rgba(255,255,255,0.03);">
+ <th style="padding: 10px; text-align: left; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 11px;">交易对</th>
+ <th style="padding: 10px; text-align: center; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 11px;">方向</th>
+ <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 11px;">收益率</th>
+ <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 11px;">盈亏</th>
+ <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 11px;">日期</th>
+ </tr>
+ </thead>
+ <tbody>
+ ${rows}
+ </tbody>
+ </table>
+ </div>
+ <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: center;">
+ <button id="closeHistoryModal" style="
+ padding: 10px 32px;
+ background: transparent;
+ color: #b8ff57;
+ border: 1px solid rgba(184,255,87,0.3);
+ border-radius: 6px;
+ font-family: 'DM Mono', monospace;
+ font-size: 12px;
+ cursor: pointer;
+ transition: all 0.2s;
+ ">关闭</button>
+ </div>
+ </div>
+ `;
+ 
+ document.body.appendChild(modal);
+ 
+ // 关闭按钮事件
+ document.getElementById('closeHistoryModal').addEventListener('click', () => {
+ modal.remove();
  });
  
- // 添加触摸反馈
- historyBtn.addEventListener('touchstart', function() {
- this.style.opacity = '0.7';
+ // 点击背景关闭
+ modal.addEventListener('click', (e) => {
+ if (e.target === modal) modal.remove();
  });
- historyBtn.addEventListener('touchend', function() {
- this.style.opacity = '';
- });
+ 
+ } catch (err) {
+ console.error('获取历史记录失败:', err);
+ alert('获取历史记录失败，请稍后重试');
  }
-});
+}
+
+// 保留原函数用于兼容（卡片点击查看单个币种历史）
+async function showHistory(symbol) {
+ if (!symbol) {
+ // 无参数时调用新的模态框
+ showHistoryModal();
+ return;
+ }
+ // 单个币种历史记录（从卡片点击）
+ const url = `https://trader.brandonwilson8855.workers.dev/history?symbol=${symbol}`;
+ try {
+ const res = await fetch(url);
+ const { total, data } = await res.json();
+ // ... 单个币种弹窗逻辑
+ } catch (err) {
+ console.error('获取历史记录失败:', err);
+ }
+}
 
 // 绘制Sparkline曲线 - 4种情况直接绘制
 function drawSparkline(canvas, data, isLong, isProfit, entryPrice) {
