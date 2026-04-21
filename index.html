@@ -967,7 +967,7 @@
 <!-- CTAs -->
  <div class="cta-row">
  <a href="trader.html" class="btn btn-primary">交易数据</a>
- <a href="alpha.html" class="btn btn-secondary">alpha 推送</a>
+ <a href="alpha.html" class="btn btn-secondary">alpha</a>
  </div>
   </div>
 
@@ -1028,7 +1028,6 @@
 <div class="status-bar">
  <span class="status-item online">在线</span>
  <span class="status-item" id="currentDate">--</span>
- <span class="status-item" id="uptime">运行中: 00:00:00</span>
  <span class="status-item" style="margin-left:auto; font-family: 'DM Mono', monospace;">21MxBitcoin LABS</span>
 </div>
 
@@ -1090,29 +1089,20 @@
  });
  });
 
- // Status bar: Current Date and Uptime
+ // Status bar: Current Date
  const dateEl = document.getElementById('currentDate');
- const uptimeEl = document.getElementById('uptime');
- const pageLoadTime = new Date();
 
- function updateDateAndUptime() {
+ function updateDate() {
  // Current date: YYYY-MM-DD format
  const now = new Date();
  const year = now.getFullYear();
  const month = String(now.getMonth() + 1).padStart(2, '0');
  const day = String(now.getDate()).padStart(2, '0');
  dateEl.textContent = `${year}-${month}-${day}`;
-
- // Uptime calculation
- const elapsed = now - pageLoadTime;
- const hours = String(Math.floor(elapsed / 3600000)).padStart(2, '0');
- const minutes = String(Math.floor((elapsed % 3600000) / 60000)).padStart(2, '0');
- const seconds = String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0');
- uptimeEl.textContent = `运行中: ${hours}:${minutes}:${seconds}`;
  }
 
- updateDateAndUptime();
- setInterval(updateDateAndUptime, 1000);
+ updateDate();
+ setInterval(updateDate, 1000);
 </script>
 </body>
 </html>
