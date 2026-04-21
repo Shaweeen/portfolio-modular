@@ -505,15 +505,6 @@
  font-family: 'DM Mono', monospace;
  font-size: 14px;
  color: var(--gray-text);
- margin-bottom: 8px;
- padding-bottom: 8px;
- border-bottom: 1px solid var(--border);
- }
-
- .history-generated {
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- color: var(--accent);
  margin-bottom: 16px;
  padding-bottom: 12px;
  border-bottom: 1px solid var(--border);
@@ -1163,7 +1154,6 @@ function generateMockCurve(isLong, isProfit, points, entryPrice) {
  </div>
  <div class="history-body">
  <p class="history-total">总计: ${total || data.length} 条记录</p>
- <p class="history-generated">数据日期: ${new Date().toLocaleDateString('zh-CN', {day: '2-digit', month: '2-digit', year: 'numeric'})}</p>
  <div class="history-list">
  ${data.map(item => `
  <div class="history-item">
