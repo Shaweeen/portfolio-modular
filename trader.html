@@ -741,7 +741,7 @@
  // 做多盈利：价格上涨，应该显示向上 (Y坐标减小)
  // 做空盈利：价格下跌，应该显示向下 (Y坐标增加)
  // 所以我们需要：做多盈利和做空亏损 -> 正常Y轴；做空盈利和做多亏损 -> 反转Y轴
- const shouldInvertY = (isLong && isProfit) || (!isLong && !isProfit);
+ // shouldInvertY 已在上方定义，这里直接使用
  
  // 生成平滑曲线
  chartData.forEach((price, i) => {
