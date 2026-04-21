@@ -167,6 +167,40 @@
  .page-header {
  margin-bottom: 48px;
  animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both;
+ position: relative;
+ }
+
+ .history-btn {
+ position: absolute;
+ right: 0;
+ top: 0;
+ background: var(--gray-2);
+ border: 1px solid var(--border);
+ color: var(--white);
+ padding: 10px 20px;
+ border-radius: 6px;
+ font-family: 'DM Mono', monospace;
+ font-size: 12px;
+ cursor: pointer;
+ transition: all 0.2s;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }
+
+ .history-btn:hover {
+ border-color: var(--accent);
+ background: var(--gray-3);
+ transform: translateY(-2px);
+ }
+
+ @media (max-width: 900px) {
+ .history-btn {
+ position: relative;
+ right: auto;
+ top: auto;
+ margin-top: 16px;
+ }
  }
 
  @keyframes fadeUp {
@@ -402,6 +436,148 @@
  @media (max-width: 600px) {
  .cards-container { grid-template-columns: 1fr; }
  }
+
+ /* History Modal Styles */
+ .history-modal {
+ position: fixed;
+ inset: 0;
+ z-index: 1000;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ }
+
+ .history-overlay {
+ position: absolute;
+ inset: 0;
+ background: rgba(0,0,0,0.8);
+ backdrop-filter: blur(5px);
+ }
+
+ .history-content {
+ position: relative;
+ background: var(--gray-2);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ width: 90%;
+ max-width: 800px;
+ max-height: 80vh;
+ overflow: hidden;
+ animation: fadeUp 0.3s ease;
+ }
+
+ .history-header {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 20px 24px;
+ border-bottom: 1px solid var(--border);
+ }
+
+ .history-header h2 {
+ font-family: 'Noto Serif SC', serif;
+ font-size: 18px;
+ font-weight: 700;
+ color: var(--white);
+ }
+
+ .close-btn {
+ background: none;
+ border: none;
+ color: var(--gray-light);
+ font-size: 24px;
+ cursor: pointer;
+ transition: color 0.2s;
+ }
+
+ .close-btn:hover {
+ color: var(--white);
+ }
+
+ .history-body {
+ padding: 20px 24px;
+ overflow-y: auto;
+ max-height: calc(80vh - 80px);
+ }
+
+ .history-total {
+ font-family: 'DM Mono', monospace;
+ font-size: 14px;
+ color: var(--gray-text);
+ margin-bottom: 16px;
+ padding-bottom: 12px;
+ border-bottom: 1px solid var(--border);
+ }
+
+ .history-list {
+ display: flex;
+ flex-direction: column;
+ gap: 12px;
+ }
+
+ .history-item {
+ display: grid;
+ grid-template-columns: 1fr 1fr 1fr 2fr;
+ gap: 16px;
+ align-items: center;
+ padding: 12px 16px;
+ background: var(--gray-1);
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-family: 'DM Mono', monospace;
+ font-size: 13px;
+ transition: border-color 0.2s;
+ }
+
+ .history-item:hover {
+ border-color: var(--accent-border);
+ }
+
+ .history-symbol {
+ font-weight: 500;
+ color: var(--white);
+ }
+
+ .history-pnl {
+ font-weight: 500;
+ }
+
+ .history-pnl.positive { color: var(--profit); }
+ .history-pnl.negative { color: var(--loss); }
+
+ .history-side {
+ padding: 3px 8px;
+ border-radius: 3px;
+ font-size: 11px;
+ text-align: center;
+ }
+
+ .history-side.long {
+ background: rgba(46,189,133,0.15);
+ color: var(--profit);
+ }
+
+ .history-side.short {
+ background: rgba(246,70,93,0.15);
+ color: var(--loss);
+ }
+
+ .history-time {
+ color: var(--gray-text);
+ font-size: 12px;
+ text-align: right;
+ }
+
+ @media (max-width: 768px) {
+ .history-item {
+ grid-template-columns: 1fr 1fr;
+ gap: 8px;
+ }
+ .history-time {
+ grid-column: span 2;
+ text-align: left;
+ }
+ }
 </style>
 </head>
 <body>
@@ -428,12 +604,13 @@
  </div>
 </nav>
 
-<!-- MAIN -->
+ <!-- MAIN -->
 <main>
  <div class="content">
  <div class="page-header">
  <h1 class="page-title">交易数据</h1>
  <p class="page-subtitle">交易数据 Trader/Date</p>
+ <button class="history-btn" onclick="showHistory()">📊 查看历史记录</button>
  </div>
 
  <!-- Cards Container -->
@@ -522,8 +699,12 @@
  const max = Math.max(...data);
  const range = max - min || 1;
  
- // 根据盈亏和方向决定曲线走势
- // 做多盈利=向上, 做空盈利=向下, 做多亏损=向下, 做空亏损=向上
+ // 曲线逻辑：
+ // B做多 + PNL盈利 = 曲线向上
+ // S做空 + PNL盈利 = 曲线向下
+ // B做多 + PNL亏损 = 曲线向下
+ // S做空 + PNL亏损 = 曲线向上
+ // 即：盈利时曲线从开仓点向盈利方向走，亏损时向亏损方向走
  const curveDirection = (isLong && isProfit) || (!isLong && !isProfit) ? -1 : 1;
  
  // 计算开仓点位置 (约30%位置)
@@ -661,6 +842,56 @@
 
  // 页面加载完成运行
  window.onload = renderTraderCards;
+
+ // 显示历史记录
+ async function showHistory(symbol) {
+ const url = symbol 
+ ? `https://trader.brandonwilson8855.workers.dev/history?symbol=${symbol}`
+ : `https://trader.brandonwilson8855.workers.dev/history`;
+ 
+ try {
+ const res = await fetch(url);
+ const { total, data } = await res.json();
+ 
+ // 创建弹窗显示历史记录
+ const modal = document.createElement('div');
+ modal.className = 'history-modal';
+ modal.innerHTML = `
+ <div class="history-overlay" onclick="closeHistory()"></div>
+ <div class="history-content">
+ <div class="history-header">
+ <h2>📊 历史交易记录 ${symbol ? '- ' + symbol : ''}</h2>
+ <button class="close-btn" onclick="closeHistory()">&times;</button>
+ </div>
+ <div class="history-body">
+ <p class="history-total">总计: ${total || data.length} 条记录</p>
+ <div class="history-list">
+ ${data.map(item => `
+ <div class="history-item">
+ <span class="history-symbol">${item.symbol}</span>
+ <span class="history-pnl ${parseFloat(item.pnl) >= 0 ? 'positive' : 'negative'}">${item.pnl}%</span>
+ <span class="history-side ${item.side.toLowerCase()}">${item.side}</span>
+ <span class="history-time">${new Date(item.time).toLocaleString('zh-CN')}</span>
+ </div>
+ `).join('')}
+ </div>
+ </div>
+ </div>
+ `;
+ document.body.appendChild(modal);
+ } catch (err) {
+ console.error('获取历史记录失败:', err);
+ alert('获取历史记录失败，请稍后重试');
+ }
+ }
+
+ // 关闭历史记录弹窗
+ function closeHistory() {
+ const modal = document.querySelector('.history-modal');
+ if (modal) {
+ modal.remove();
+ }
+ }
 </script>
 
 </body>
