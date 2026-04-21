@@ -155,29 +155,29 @@
     position: relative;
   }
 
-  /* LEFT PANEL */
-  .left-panel {
-    flex: 0 0 55%;
-    padding: 64px 48px 64px 56px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) both;
-  }
+/* LEFT PANEL */
+.left-panel {
+flex: 0 0 55%;
+padding: 24px 48px 32px 56px;
+display: flex;
+flex-direction: column;
+justify-content: flex-start;
+position: relative;
+animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) both;
+}
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(28px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .site-identity {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 40px;
-    animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both;
-  }
+.site-identity {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 20px;
+animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+}
 
   .site-logo-mark {
     width: 28px; height: 28px;
@@ -198,12 +198,12 @@
     color: var(--white);
   }
 
-  /* GOOGLE SHEETS COMPONENT */
-  .sheets-wrapper {
-    animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
-    position: relative;
-    margin-bottom: 44px;
-  }
+/* GOOGLE SHEETS COMPONENT */
+.sheets-wrapper {
+animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+position: relative;
+margin-bottom: 24px;
+}
 
   .sheets-toolbar {
     display: flex;
@@ -351,18 +351,18 @@
   }
   .sheet-table tbody tr:hover { background: var(--gray-3); }
 
-  .sheet-table td {
-    border-bottom: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    padding: 6px 10px;
-    color: var(--gray-light);
-    font-size: 11.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 160px;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-  }
+.sheet-table td {
+border-bottom: 1px solid var(--border);
+border-right: 1px solid var(--border);
+padding: 4px 8px;
+color: var(--gray-light);
+font-size: 11.5px;
+white-space: nowrap;
+overflow: hidden;
+max-width: 160px;
+text-overflow: ellipsis;
+line-height: 1.3;
+}
 
   .row-num {
     color: var(--gray-text) !important;
@@ -475,11 +475,11 @@
   }
   @keyframes blink { 50% { opacity: 0; } }
 
-  /* HEADLINE */
-  .headline-block {
-    margin-bottom: 28px;
-    animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.35s both;
-  }
+/* HEADLINE */
+.headline-block {
+margin-bottom: 16px;
+animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.35s both;
+}
 
   .headline {
     font-family: 'Noto Serif SC', serif;
@@ -866,12 +866,11 @@
  </table>
 
 <!-- Sheet tabs -->
- <div class="sheet-tabs">
- <div class="sheet-tab active">Alpha项目收益</div>
- <div class="sheet-tab">Trader交易</div>
- <div class="sheet-tab">ROI</div>
- <div class="sheet-add">+</div>
- </div>
+<div class="sheet-tabs">
+<div class="sheet-tab active" id="tab-airdrop" onclick="switchTab('airdrop')">Airdrop收益</div>
+<div class="sheet-tab" id="tab-trader" onclick="switchTab('trader')">Trader交易</div>
+<div class="sheet-add">+</div>
+</div>
       </div>
     </div>
 
