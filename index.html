@@ -866,11 +866,12 @@
  </table>
 
 <!-- Sheet tabs -->
-<div class="sheet-tabs">
-<div class="sheet-tab active" id="tab-airdrop" onclick="switchTab('airdrop')">Airdrop收益</div>
-<div class="sheet-tab" id="tab-trader" onclick="switchTab('trader')">Trader交易</div>
-<div class="sheet-add">+</div>
-</div>
+ <div class="sheet-tabs">
+ <div class="sheet-tab active">Alpha项目收益</div>
+ <div class="sheet-tab">Trader交易</div>
+ <div class="sheet-tab">ROI</div>
+ <div class="sheet-add">+</div>
+ </div>
       </div>
     </div>
 
@@ -1021,69 +1022,19 @@
  setInterval(updateDate, 1000);
 
 // 数据映射与渲染逻辑 - 仅更新 tbody 内容，不改动外层容器
-// 旧代码已移除，使用新的多 Tab 数据加载逻辑
+const DATA_PATH = './data/工作表1.json';
 
-// 页面加载完成后执行数据加载
-document.addEventListener('DOMContentLoaded', () => {
- loadSheetData('airdrop'); // 默认加载 Airdrop 数据
-});
-
-// Tab 切换功能
-let currentTab = 'airdrop';
-
-function switchTab(tab) {
- if (tab === currentTab) return;
- currentTab = tab;
- 
- // 更新 tab 样式
- document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
- document.getElementById(`tab-${tab}`).classList.add('active');
- 
- // 重新加载数据
- loadSheetData(tab);
-}
-
-// 修改 loadSheetData 函数支持多数据源
-async function loadSheetData(dataType) {
+async function loadSheetData() {
  const tbody = document.getElementById('sheet-tbody-data');
  if (!tbody) return;
  
  try {
- let DATA_PATH;
- if (dataType === 'trader') {
- DATA_PATH = './data/trade_data.json';
- } else {
- DATA_PATH = './data/工作表1.json';
- }
- 
  const res = await fetch(DATA_PATH);
  const json = await res.json();
  
  // 清空现有内容
  tbody.innerHTML = '';
  
- if (dataType === 'trader') {
- // Trader 数据格式不同
- renderTraderData(json, tbody);
- } else {
- // Airdrop 数据格式
- renderAirdropData(json, tbody);
- }
- 
- } catch (err) {
- console.error('数据加载失败:', err);
- tbody.innerHTML = `
- <tr>
- <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
- 数据加载失败，请检查网络连接
- </td>
- </tr>
- `;
- }
-}
-
-// Airdrop 数据渲染
-function renderAirdropData(json, tbody) {
  // 获取表头和数据
  const headers = json.headers || [];
  const rows = json.rows || [];
@@ -1111,9 +1062,9 @@ function renderAirdropData(json, tbody) {
  return roiB - roiA; // 从高到低
  });
  
- // 固定显示7行数据（第2-8行），9-11行为锁定行
- const displayData = sortedRows.slice(0, 7);
- const emptyRowsNeeded = 7 - displayData.length;
+ // 固定显示9行数据（第2-10行），不足9行用空行填充
+ const displayData = sortedRows.slice(0, 9);
+ const emptyRowsNeeded = 9 - displayData.length;
  
  displayData.forEach((row, index) => {
  const tr = document.createElement('tr');
@@ -1145,7 +1096,7 @@ function renderAirdropData(json, tbody) {
  tbody.appendChild(tr);
  });
  
- // 填充空行（如果数据不足7行）
+ // 填充空行（如果数据不足9行）
  for (let i = 0; i < emptyRowsNeeded; i++) {
  const emptyRow = document.createElement('tr');
  const rowNum = displayData.length + i + 2;
@@ -1157,106 +1108,36 @@ function renderAirdropData(json, tbody) {
  tbody.appendChild(emptyRow);
  }
  
- // 锁定行 - 第9、10、11行固定为锁定行
- for (let lockRow = 0; lockRow < 3; lockRow++) {
+ // 锁定行 - 固定放在第10行位置
  const lockedRow = document.createElement('tr');
  lockedRow.className = 'locked-row';
- const rowNum = 9 + lockRow;
- const lockText = ['🔒', 'RESTRICTED', 'DATA:', 'RECENT', '7', 'ITEMS', 'ONLY', '-', '-'];
- let lockHTML = `<td class="row-num">${rowNum}</td>`;
- for (let j = 0; j < headers.length; j++) {
- lockHTML += `<td style="color: #555; font-style: italic; padding: 20px 10px; text-align: center;">${lockText[j] || '-'}</td>`;
- }
- lockedRow.innerHTML = lockHTML;
+ lockedRow.innerHTML = `
+ <td class="row-num">11</td>
+ <td style="text-align: center; color: #555; font-style: italic; padding: 20px 10px;">🔒</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">RESTRICTED</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">DATA:</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">RECENT</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">9</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">ITEMS</td>
+ <td style="color: #555; font-style: italic; padding: 20px 10px;">ONLY</td>
+ <td style="color: #444;">-</td>
+ `;
  tbody.appendChild(lockedRow);
+ 
+ } catch (err) {
+ console.error('数据加载失败:', err);
+ tbody.innerHTML = `
+ <tr>
+ <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
+ 数据加载失败，请检查网络连接
+ </td>
+ </tr>
+ `;
  }
 }
 
-// Trader 数据渲染
-function renderTraderData(data, tbody) {
- // Trader 数据是数组格式
- const rows = Array.isArray(data) ? data : [];
- 
- // 表头行 (第1行)
- const headerRow = document.createElement('tr');
- headerRow.innerHTML = `
- <td class="row-num">1</td>
- <td class="cell-bold">交易对</td>
- <td class="cell-bold">方向</td>
- <td class="cell-bold">收益率</td>
- <td class="cell-bold">盈亏</td>
- <td class="cell-bold">开仓价</td>
- <td class="cell-bold">当前价</td>
- <td class="cell-bold">杠杆</td>
- <td class="cell-bold">日期</td>
- `;
- tbody.appendChild(headerRow);
- 
- // 按收益率排序
- const sortedRows = rows.sort((a, b) => {
- const pnlA = parseFloat(a.pnl) || 0;
- const pnlB = parseFloat(b.pnl) || 0;
- return pnlB - pnlA; // 从高到低
- });
- 
- // 固定显示7行数据（第2-8行），9-11行为锁定行
- const displayData = sortedRows.slice(0, 7);
- const emptyRowsNeeded = 7 - displayData.length;
- 
- displayData.forEach((item, index) => {
- const tr = document.createElement('tr');
- 
- // 第一行数据添加选中状态
- if (index === 0) tr.classList.add('row-selected');
- 
- const pnlNum = parseFloat(item.pnl) || 0;
- const profitNum = parseFloat(item.profit) || 0;
- const isPositive = pnlNum >= 0;
- const isProfitPositive = profitNum >= 0;
- const date = item.time ? new Date(item.time).toLocaleDateString('zh-CN', {
- day: '2-digit', month: '2-digit', year: 'numeric'
- }) : '--';
- 
- tr.innerHTML = `
- <td class="row-num">${index + 2}</td>
- <td>${item.symbol || '--'}</td>
- <td><span class="cell-tag ${item.side === 'LONG' ? 'tag-green' : 'tag-red'}">${item.side || '--'}</span></td>
- <td style="color: ${isPositive ? '#34a853' : '#ea4335'}">${item.pnl || '--'}</td>
- <td style="color: ${isProfitPositive ? '#34a853' : '#ea4335'}">$${item.profit || '--'}</td>
- <td>${item.entry || '--'}</td>
- <td>${item.last || '--'}</td>
- <td>${item.lev || '--'}X</td>
- <td style="color: #888;">${date}</td>
- `;
- tbody.appendChild(tr);
- });
- 
- // 填充空行（如果数据不足7行）
- for (let i = 0; i < emptyRowsNeeded; i++) {
- const emptyRow = document.createElement('tr');
- const rowNum = displayData.length + i + 2;
- let emptyHTML = `<td class="row-num">${rowNum}</td>`;
- for (let j = 0; j < 8; j++) {
- emptyHTML += `<td style="color: #333;">-</td>`;
- }
- emptyRow.innerHTML = emptyHTML;
- tbody.appendChild(emptyRow);
- }
- 
- // 锁定行 - 第9、10、11行固定为锁定行
- for (let lockRow = 0; lockRow < 3; lockRow++) {
- const lockedRow = document.createElement('tr');
- lockedRow.className = 'locked-row';
- const rowNum = 9 + lockRow;
- const lockText = ['🔒', 'RESTRICTED', 'DATA:', 'RECENT', '7', 'ITEMS', 'ONLY', '-', '-'];
- let lockHTML = `<td class="row-num">${rowNum}</td>`;
- for (let j = 0; j < 8; j++) {
- lockHTML += `<td style="color: #555; font-style: italic; padding: 20px 10px; text-align: center;">${lockText[j] || '-'}</td>`;
- }
- lockedRow.innerHTML = lockHTML;
- tbody.appendChild(lockedRow);
- }
-}
+// 页面加载完成后执行数据加载
+document.addEventListener('DOMContentLoaded', loadSheetData);
 
  // Sheet toolbar buttons
 
