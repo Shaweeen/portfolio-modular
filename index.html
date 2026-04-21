@@ -376,10 +376,19 @@
   }
 
   /* Selected row highlight */
-  .row-selected td { background: rgba(184,255,87,0.04) !important; }
-  .row-selected td.row-num { background: rgba(184,255,87,0.08) !important; }
+ .row-selected td { background: rgba(184,255,87,0.04) !important; }
+ .row-selected td.row-num { background: rgba(184,255,87,0.08) !important; }
 
-  /* Cell types */
+ /* 锁定行样式 - 超过9行后显示 */
+ .locked-row {
+ background: linear-gradient(180deg, var(--gray-1) 0%, #050505 100%);
+ }
+ .locked-row td {
+ color: #555;
+ font-style: italic;
+ }
+
+ /* Cell types */
   .cell-tag {
     display: inline-block;
     padding: 1px 6px;
@@ -849,104 +858,12 @@
               <th>D</th>
               <th>E</th>
               <th>F</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="row-num">1</td>
-              <td class="cell-bold">项目名称</td>
-              <td class="cell-bold">类型</td>
-              <td class="cell-bold">技术栈</td>
-              <td class="cell-bold">状态</td>
-              <td class="cell-bold">完成度</td>
-              <td class="cell-bold">年份</td>
-            </tr>
-            <tr class="row-selected">
-              <td class="row-num">2</td>
-              <td>Nexus Dashboard</td>
-              <td><span class="cell-tag tag-blue">Web App</span></td>
-              <td>React / TS</td>
-              <td><span class="cell-tag tag-green">已完成</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:100%"></div></div>
-              </td>
-              <td class="cell-num">2025</td>
-            </tr>
-            <tr>
-              <td class="row-num">3</td>
-              <td>Orbital CMS</td>
-              <td><span class="cell-tag tag-accent">全栈</span></td>
-              <td>Next.js / PG</td>
-              <td><span class="cell-tag tag-green">已完成</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:100%"></div></div>
-              </td>
-              <td class="cell-num">2025</td>
-            </tr>
-            <tr>
-              <td class="row-num">4</td>
-              <td>Lumina AI</td>
-              <td><span class="cell-tag tag-blue">Web App</span></td>
-              <td>Python / Vue</td>
-              <td><span class="cell-tag tag-yellow">进行中</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:68%; background:#fbbc04;"></div></div>
-              </td>
-              <td class="cell-num">2026</td>
-            </tr>
-            <tr>
-              <td class="row-num">5</td>
-              <td>Typecraft</td>
-              <td><span class="cell-tag tag-gray">工具</span></td>
-              <td>Svelte / Rust</td>
-              <td><span class="cell-tag tag-green">已完成</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:100%"></div></div>
-              </td>
-              <td class="cell-num">2024</td>
-            </tr>
-            <tr>
-              <td class="row-num">6</td>
-              <td>Shade Design Sys.</td>
-              <td><span class="cell-tag tag-gray">开源</span></td>
-              <td>CSS / Figma</td>
-              <td><span class="cell-tag tag-yellow">进行中</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:45%; background:#fbbc04;"></div></div>
-              </td>
-              <td class="cell-num">2026</td>
-            </tr>
-            <tr>
-              <td class="row-num">7</td>
-              <td>Voyager Blog</td>
-              <td><span class="cell-tag tag-blue">Web App</span></td>
-              <td>Astro / MDX</td>
-              <td><span class="cell-tag tag-green">已完成</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:100%"></div></div>
-              </td>
-              <td class="cell-num">2024</td>
-            </tr>
-            <tr>
-              <td class="row-num">8</td>
-              <td>DataPulse</td>
-              <td><span class="cell-tag tag-accent">全栈</span></td>
-              <td>Node / Redis</td>
-              <td><span class="cell-tag tag-red">搁置</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:30%; background:#ea4335;"></div></div>
-              </td>
-              <td class="cell-num">2024</td>
-            </tr>
-            <tr>
-              <td class="row-num">9</td>
-              <td class="cell-formula">=COUNT(A2:A8)</td>
-              <td colspan="3"></td>
-              <td class="cell-num cell-formula">7</td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
+ </tr>
+ </thead>
+ <tbody id="sheet-tbody-data">
+ <!-- 数据将通过 JavaScript 从 trade_data.json 动态加载 -->
+ </tbody>
+ </table>
 
 <!-- Sheet tabs -->
  <div class="sheet-tabs">
@@ -1103,6 +1020,91 @@
 
  updateDate();
  setInterval(updateDate, 1000);
+
+// 数据映射与渲染逻辑 - 仅更新 tbody 内容，不改动外层容器
+const DATA_PATH = './data/trade_data.json';
+
+async function loadSheetData() {
+ const tbody = document.getElementById('sheet-tbody-data');
+ if (!tbody) return;
+ 
+ try {
+ const res = await fetch(DATA_PATH);
+ const json = await res.json();
+ 
+ // 清空现有内容
+ tbody.innerHTML = '';
+ 
+ // 表头行 (第1行)
+ const headerRow = document.createElement('tr');
+ headerRow.innerHTML = `
+ <td class="row-num">1</td>
+ <td class="cell-bold">交易对</td>
+ <td class="cell-bold">方向</td>
+ <td class="cell-bold">收益率</td>
+ <td class="cell-bold">盈亏</td>
+ <td class="cell-bold">杠杆</td>
+ <td class="cell-bold">日期</td>
+ `;
+ tbody.appendChild(headerRow);
+ 
+ // 数据行 - 最多显示9行 (第2-10行)
+ const displayData = json.slice(0, 9);
+ displayData.forEach((item, index) => {
+ const tr = document.createElement('tr');
+ const pnlNum = parseFloat(item.pnl);
+ const isPositive = pnlNum >= 0;
+ const profitNum = parseFloat(item.profit || 0);
+ const isProfitPositive = profitNum >= 0;
+ const date = item.time ? new Date(item.time).toLocaleDateString('zh-CN', {
+ day: '2-digit', month: '2-digit', year: 'numeric'
+ }) : new Date().toLocaleDateString('zh-CN', {
+ day: '2-digit', month: '2-digit', year: 'numeric'
+ });
+ 
+ // 第一行数据添加选中状态
+ const selectedClass = index === 0 ? 'row-selected' : '';
+ if (selectedClass) tr.classList.add(selectedClass);
+ 
+ tr.innerHTML = `
+ <td class="row-num">${index + 2}</td>
+ <td>${item.symbol || '--'}</td>
+ <td><span class="cell-tag ${item.side === 'LONG' ? 'tag-green' : 'tag-red'}">${item.side === 'LONG' ? '做多' : '做空'}</span></td>
+ <td class="${isPositive ? 'cell-num' : ''}" style="color: ${isPositive ? '#34a853' : '#ea4335'}">${item.pnl}</td>
+ <td style="color: ${isProfitPositive ? '#34a853' : '#ea4335'}">${item.profit || '--'} USDT</td>
+ <td class="cell-num">${item.lev || '--'}X</td>
+ <td class="cell-num">${date}</td>
+ `;
+ tbody.appendChild(tr);
+ });
+ 
+ // 锁定行 - 超过9行显示收缩提示
+ if (json.length > 9) {
+ const lockedRow = document.createElement('tr');
+ lockedRow.className = 'locked-row';
+ lockedRow.innerHTML = `
+ <td class="row-num">${11}</td>
+ <td colspan="6" style="text-align: center; color: #555; font-style: italic; padding: 20px;">
+ 🔒 RESTRICTED DATA: ${json.length - 9} MORE ITEMS HIDDEN
+ </td>
+ `;
+ tbody.appendChild(lockedRow);
+ }
+ 
+ } catch (err) {
+ console.error('数据加载失败:', err);
+ tbody.innerHTML = `
+ <tr>
+ <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+ 数据加载失败，请检查网络连接
+ </td>
+ </tr>
+ `;
+ }
+}
+
+// 页面加载完成后执行数据加载
+document.addEventListener('DOMContentLoaded', loadSheetData);
 
  // Sheet toolbar buttons
 
