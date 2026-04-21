@@ -1,1465 +1,323 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Shaween</title>
+<title>Portfolio 2026 - 21MxBitcoin</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet"/>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+--bg: #000000;
+--card: #0a0a0a;
+--border: rgba(255,255,255,0.07);
+--text: #ffffff;
+--dim: #666666;
+--green: #b8ff57;
+--accent-border: rgba(184,255,87,0.25);
+--gray-1: #0a0a0a;
+--gray-2: #111111;
+--gray-3: #1a1a1a;
+}
 
-  :root {
-    --black: #000000;
-    --white: #ffffff;
-    --gray-1: #0a0a0a;
-    --gray-2: #111111;
-    --gray-3: #1a1a1a;
-    --gray-4: #222222;
-    --gray-5: #2e2e2e;
-    --gray-6: #3a3a3a;
-    --gray-text: #666666;
-    --gray-light: #aaaaaa;
-    --accent: #b8ff57;
-    --accent-dim: rgba(184,255,87,0.12);
-    --accent-border: rgba(184,255,87,0.25);
-    --border: rgba(255,255,255,0.07);
-    --border-strong: rgba(255,255,255,0.12);
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'Noto Sans SC', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-    cursor: none;
-  }
+body {
+background: var(--bg);
+color: var(--text);
+font-family: 'DM Mono', monospace;
+padding: 20px;
+min-height: 100vh;
+}
 
-  /* Custom cursor */
-  .cursor {
-    position: fixed;
-    width: 8px; height: 8px;
-    background: var(--white);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%,-50%);
-    transition: transform 0.1s, background 0.2s, width 0.2s, height 0.2s;
-    mix-blend-mode: difference;
-  }
-  .cursor-ring {
-    position: fixed;
-    width: 32px; height: 32px;
-    border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%,-50%);
-    transition: transform 0.15s ease, width 0.2s, height 0.2s, border-color 0.2s;
-  }
-
-  /* Noise overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 100;
-    opacity: 0.4;
-  }
-
-  /* NAVBAR */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 500;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 32px;
-    height: 54px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
+/* 导航栏 */
+nav {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 20px;
+height: 54px;
+border-bottom: 1px solid var(--border);
+margin-bottom: 30px;
+}
 
 .nav-logo {
- font-family: 'DM Mono', monospace;
- font-size: 18px;
- font-weight: 700;
- letter-spacing: 0.05em;
- color: var(--white);
- text-decoration: none;
- text-transform: uppercase;
- }
-
-  .nav-links {
-    display: flex;
-    gap: 28px;
-    list-style: none;
-  }
-  .nav-links a {
-    font-size: 13px;
-    color: var(--gray-light);
-    text-decoration: none;
-    letter-spacing: 0.03em;
-    transition: color 0.2s;
-    font-weight: 300;
-  }
-  .nav-links a:hover { color: var(--white); }
-
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .nav-time {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--gray-text);
-    letter-spacing: 0.05em;
-  }
-
-  .nav-lang {
-    font-size: 12px;
-    color: var(--gray-light);
-    font-family: 'DM Mono', monospace;
-    border: 1px solid var(--border-strong);
-    padding: 3px 8px;
-    border-radius: 3px;
-    cursor: none;
-    letter-spacing: 0.04em;
-  }
-
-  .nav-theme-btn {
-    width: 28px; height: 28px;
-    border: 1px solid var(--border-strong);
-    border-radius: 50%;
-    background: none;
-    cursor: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .nav-theme-btn svg { stroke: var(--gray-light); width: 14px; height: 14px; }
-
-  /* MAIN LAYOUT */
-  main {
-    display: flex;
-    min-height: 100vh;
-    padding-top: 54px;
-    position: relative;
-  }
-
-  /* LEFT PANEL */
-  .left-panel {
-    flex: 0 0 55%;
-    padding: 64px 48px 64px 56px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) both;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(28px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .site-identity {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 40px;
-    animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both;
-  }
-
-  .site-logo-mark {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .site-logo-mark svg { width: 14px; height: 14px; }
-
-  .site-name {
-    font-family: 'DM Mono', monospace;
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    color: var(--white);
-  }
-
-  /* GOOGLE SHEETS COMPONENT */
-  .sheets-wrapper {
-    animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
-    position: relative;
-    margin-bottom: 44px;
-  }
-
-  .sheets-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0 10px 0;
-  }
-
-  .sheets-title-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .sheets-icon {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-  }
-  .sheets-icon span {
-    display: block;
-    width: 7px; height: 9px;
-    border-radius: 1px;
-  }
-  .sheets-icon span:nth-child(1) { background: #0f9d58; }
-  .sheets-icon span:nth-child(2) { background: #34a853; width: 5px; }
-
-  .sheets-doc-name {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--gray-light);
-    letter-spacing: 0.02em;
-  }
-
-  .sheets-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .sheets-btn {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--gray-text);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 3px 8px;
-    background: none;
-    cursor: none;
-    letter-spacing: 0.03em;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .sheets-btn:hover { border-color: var(--border-strong); color: var(--white); }
-
-  .sheets-btn.primary {
-    background: var(--accent);
-    color: var(--black);
-    border-color: transparent;
-    font-weight: 500;
-  }
-
-  /* The actual sheet table */
-  .sheets-container {
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--gray-1);
-    position: relative;
-  }
-
-  /* Sheet formula bar */
-  .formula-bar {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    padding: 0;
-    height: 30px;
-    background: var(--gray-2);
-  }
-
-  .cell-ref {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--gray-text);
-    padding: 0 12px;
-    border-right: 1px solid var(--border);
-    height: 100%;
-    display: flex;
-    align-items: center;
-    width: 60px;
-    flex-shrink: 0;
-  }
-
-  .formula-fx {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--gray-text);
-    padding: 0 12px;
-    border-right: 1px solid var(--border);
-    height: 100%;
-    display: flex;
-    align-items: center;
-    font-style: italic;
-  }
-
-  .formula-input {
-    flex: 1;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--gray-light);
-    padding: 0 12px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  /* Column headers row */
-  .sheet-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'DM Mono', monospace;
-    font-size: 11.5px;
-  }
-
-  .col-header-row th {
-    background: var(--gray-2);
-    border-bottom: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    padding: 5px 10px;
-    text-align: center;
-    color: var(--gray-text);
-    font-weight: 400;
-    font-size: 11px;
-    letter-spacing: 0.04em;
-  }
-  .col-header-row th:first-child {
-    width: 36px;
-    border-right: 1px solid var(--border-strong);
-  }
-
-  .sheet-table tbody tr {
-    transition: background 0.15s;
-  }
-  .sheet-table tbody tr:hover { background: var(--gray-3); }
-
-  .sheet-table td {
-    border-bottom: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    padding: 6px 10px;
-    color: var(--gray-light);
-    font-size: 11.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 160px;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-  }
-
-  .row-num {
-    color: var(--gray-text) !important;
-    font-size: 10.5px !important;
-    text-align: center;
-    border-right: 1px solid var(--border-strong) !important;
-    background: var(--gray-2);
-    width: 36px;
-    flex-shrink: 0;
-    padding: 6px 4px !important;
-  }
-
-  /* Selected row highlight */
-  .row-selected td { background: rgba(184,255,87,0.04) !important; }
-  .row-selected td.row-num { background: rgba(184,255,87,0.08) !important; }
-
-  /* Cell types */
-  .cell-tag {
-    display: inline-block;
-    padding: 1px 6px;
-    border-radius: 3px;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-  }
-  .tag-green  { background: rgba(52,168,83,0.18); color: #34a853; }
-  .tag-blue   { background: rgba(66,133,244,0.18); color: #4285f4; }
-  .tag-yellow { background: rgba(251,188,4,0.18); color: #fbbc04; }
-  .tag-gray   { background: rgba(255,255,255,0.07); color: var(--gray-light); }
-  .tag-red    { background: rgba(234,67,53,0.18); color: #ea4335; }
-  .tag-accent { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
-
-  .cell-num { color: #7ec8ff; text-align: right; }
-  .cell-formula { color: #c97bff; }
-  .cell-bold { color: var(--white) !important; font-weight: 500; }
-
-  /* Progress bar cell */
-  .cell-progress { min-width: 80px; }
-  .progress-track {
-    height: 4px;
-    background: var(--gray-5);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    border-radius: 2px;
-    background: var(--accent);
-    animation: progressLoad 1.2s cubic-bezier(0.22,1,0.36,1) both;
-    animation-delay: 0.8s;
-    width: 0%;
-  }
-  @keyframes progressLoad {
-    to { width: var(--pct); }
-  }
-
-  /* Sheet bottom tabs */
-  .sheet-tabs {
-    display: flex;
-    align-items: center;
-    border-top: 1px solid var(--border);
-    background: var(--gray-2);
-    padding: 0 8px;
-    height: 28px;
-    gap: 0;
-  }
-
-  .sheet-tab {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 4px 14px;
-    border-right: 1px solid var(--border);
-    color: var(--gray-text);
-    cursor: none;
-    letter-spacing: 0.03em;
-    transition: color 0.2s;
-  }
-  .sheet-tab.active {
-    color: var(--accent);
-    background: rgba(184,255,87,0.05);
-  }
-  .sheet-tab:hover { color: var(--gray-light); }
-
-  .sheet-add {
-    font-size: 16px;
-    padding: 0 10px;
-    color: var(--gray-text);
-    cursor: none;
-    line-height: 28px;
-  }
-
-  /* Shimmer/typing animation for active cell */
-  .cursor-blink {
-    display: inline-block;
-    width: 1px;
-    height: 12px;
-    background: var(--accent);
-    margin-left: 2px;
-    animation: blink 1s step-end infinite;
-    vertical-align: middle;
-  }
-  @keyframes blink { 50% { opacity: 0; } }
-
-  /* HEADLINE */
-  .headline-block {
-    margin-bottom: 28px;
-    animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.35s both;
-  }
-
-  .headline {
-    font-family: 'Noto Serif SC', serif;
-    font-size: clamp(38px, 4.5vw, 58px);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    color: var(--white);
-  }
-
-  .headline span.dim { color: var(--gray-text); }
-
-  .subline {
-    margin-top: 16px;
-    font-size: 13.5px;
-    font-weight: 300;
-    color: var(--gray-light);
-    line-height: 1.8;
-    letter-spacing: 0.02em;
-  }
-
-  /* CTA BUTTONS */
-  .cta-row {
-    display: flex;
-    gap: 12px;
-    animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.5s both;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    cursor: none;
-    transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
-    border: 1px solid transparent;
-    font-family: 'Noto Sans SC', sans-serif;
-  }
-
-  .btn-primary {
-    background: var(--white);
-    color: var(--black);
-  }
-  .btn-primary:hover {
-    background: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(184,255,87,0.2);
-  }
-
-  .btn-secondary {
-    background: transparent;
-    color: var(--white);
-    border-color: var(--border-strong);
-  }
-  .btn-secondary:hover {
-    border-color: rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.04);
-    transform: translateY(-2px);
-  }
-
-  /* RIGHT PANEL */
-  .right-panel {
-    flex: 1;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  /* Floating cards */
-  .float-card {
-    position: absolute;
-    background: var(--gray-2);
-    border: 1px solid var(--border-strong);
-    border-radius: 10px;
-    padding: 16px;
-    animation: floatIn 1s cubic-bezier(0.22,1,0.36,1) both;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  }
-
-  .card-1 {
-    top: 18%;
-    left: 8%;
-    width: 200px;
-    animation-delay: 0.4s;
-  }
-  .card-2 {
-    bottom: 22%;
-    right: 6%;
-    width: 180px;
-    animation-delay: 0.65s;
-  }
-  .card-3 {
-    top: 54%;
-    left: 18%;
-    width: 160px;
-    animation-delay: 0.55s;
-  }
-
-  @keyframes floatIn {
-    from { opacity: 0; transform: translateY(24px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  /* Floating animation for cards */
-  .card-1 { animation: floatIn 1s cubic-bezier(0.22,1,0.36,1) 0.4s both, floatHover1 6s ease-in-out 1.5s infinite; }
-  .card-2 { animation: floatIn 1s cubic-bezier(0.22,1,0.36,1) 0.65s both, floatHover2 7s ease-in-out 1.8s infinite; }
-  .card-3 { animation: floatIn 1s cubic-bezier(0.22,1,0.36,1) 0.55s both, floatHover3 5.5s ease-in-out 1.6s infinite; }
-
-  @keyframes floatHover1 {
-    0%,100% { transform: translateY(0); }
-    50%      { transform: translateY(-8px); }
-  }
-  @keyframes floatHover2 {
-    0%,100% { transform: translateY(0); }
-    50%      { transform: translateY(6px); }
-  }
-  @keyframes floatHover3 {
-    0%,100% { transform: translateY(0) rotate(-1deg); }
-    50%      { transform: translateY(-6px) rotate(0.5deg); }
-  }
-
-  .card-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    color: var(--gray-text);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .card-value {
-    font-family: 'Noto Serif SC', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--white);
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-
-  .card-value.accent { color: var(--accent); }
-
-  .card-sub {
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--gray-text);
-    font-weight: 300;
-  }
-
-  .card-sparkline {
-    margin-top: 10px;
-    height: 32px;
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-  }
-  .sparkbar {
-    flex: 1;
-    border-radius: 2px 2px 0 0;
-    background: var(--gray-5);
-    transition: background 0.2s;
-    animation: sparkGrow 0.8s cubic-bezier(0.22,1,0.36,1) both;
-  }
-  .sparkbar.hi { background: var(--accent); }
-  @keyframes sparkGrow {
-    from { transform: scaleY(0); transform-origin: bottom; }
-    to   { transform: scaleY(1); }
-  }
-
-  .card-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 10px 0;
-  }
-
-  .card-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  .card-row:last-child { margin-bottom: 0; }
-  .card-row-label { font-size: 10px; color: var(--gray-text); font-family: 'DM Mono', monospace; }
-  .card-row-val   { font-size: 11px; color: var(--gray-light); font-family: 'DM Mono', monospace; }
-  .card-row-val.pos { color: #34a853; }
-  .card-row-val.neg { color: #ea4335; }
-
-  /* Grid decoration in right panel */
-  .bg-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 44px 44px;
-    opacity: 0.5;
-    pointer-events: none;
-  }
-
-  .bg-glow {
-    position: absolute;
-    width: 340px; height: 340px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(184,255,87,0.04) 0%, transparent 70%);
-    pointer-events: none;
-    top: 30%; left: 30%;
-    transform: translate(-50%, -50%);
-  }
-
-  /* Vertical scroll hint */
-  .scroll-hint {
-    position: fixed;
-    bottom: 28px; left: 56px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 1.2s both;
-    z-index: 50;
-  }
-  .scroll-line {
-    width: 1px; height: 36px;
-    background: linear-gradient(to bottom, transparent, var(--gray-text));
-    animation: scrollPulse 2.2s ease-in-out infinite;
-  }
-  @keyframes scrollPulse {
-    0%,100% { opacity: 0.4; } 50% { opacity: 1; }
-  }
-  .scroll-text {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--gray-text);
-    letter-spacing: 0.1em;
-    writing-mode: horizontal-tb;
-    transform: rotate(-90deg);
-  }
-
-  /* Status bar at very bottom */
-  .status-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 22px;
-    border-top: 1px solid var(--border);
-    background: var(--gray-1);
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    gap: 16px;
-    z-index: 400;
-  }
-  .status-item {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--gray-text);
-    letter-spacing: 0.04em;
-  }
-  .status-item.online { color: #34a853; }
-  .status-item.online::before {
-    content: '';
-    display: inline-block;
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: #34a853;
-    margin-right: 5px;
-    animation: pulse 2s infinite;
-  }
-@keyframes pulse {
- 0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+font-family: 'DM Mono', monospace;
+font-size: 16px;
+font-weight: 700;
+letter-spacing: 0.05em;
+color: var(--green);
+text-decoration: none;
+text-transform: uppercase;
 }
 
-/* Gradient text effect for 2018 */
-.gradient-2018 {
- display: inline-block;
- font-family: 'DM Mono', monospace;
- font-weight: 500;
- background: linear-gradient(to right, 
- #333333 0%, 
- #555555 20%, 
- #777777 40%, 
- #aaaaaa 60%, 
- #dddddd 80%, 
- #ffffff 100%
- );
- -webkit-background-clip: text;
- -webkit-text-fill-color: transparent;
- background-clip: text;
- color: transparent;
- letter-spacing: 0.05em;
+.nav-links {
+display: flex;
+gap: 24px;
 }
 
- @media (max-width: 900px) {
-    main { flex-direction: column; }
-    .left-panel { flex: none; padding: 40px 24px; }
-    .right-panel { min-height: 300px; }
-  }
+.nav-links a {
+color: var(--dim);
+text-decoration: none;
+font-size: 12px;
+text-transform: lowercase;
+transition: color 0.2s;
+}
+
+.nav-links a:hover {
+color: var(--text);
+}
+
+/* 标题区域 */
+.header-section {
+max-width: 1200px;
+margin: 0 auto 20px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+#sheet-title {
+color: var(--dim);
+font-weight: 400;
+font-size: 14px;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+}
+
+.data-source {
+color: var(--dim);
+font-size: 11px;
+}
+
+/* 表格容器 */
+.table-box {
+max-width: 1200px;
+margin: 0 auto;
+border: 1px solid var(--border);
+border-radius: 8px;
+background: var(--card);
+overflow: hidden;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+table-layout: fixed;
+}
+
+th {
+background: var(--gray-2);
+color: var(--dim);
+padding: 14px 12px;
+text-align: left;
+font-size: 11px;
+font-weight: 500;
+border-bottom: 1px solid var(--border);
+letter-spacing: 0.05em;
+text-transform: uppercase;
+}
+
+td {
+padding: 12px;
+border-bottom: 1px solid var(--border);
+font-size: 12px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+color: var(--text);
+}
+
+tr:hover {
+background: rgba(255,255,255,0.02);
+}
+
+/* 关键：收缩锁定行的 CSS */
+.locked-row {
+background: linear-gradient(180deg, var(--gray-1) 0%, #050505 100%);
+color: #444;
+text-align: center;
+font-style: italic;
+}
+
+.locked-row td {
+padding: 30px;
+border-bottom: 1px dashed #222;
+color: #555;
+font-size: 11px;
+letter-spacing: 0.1em;
+}
+
+/* 收益为正显示绿色 */
+.positive {
+color: var(--green) !important;
+}
+
+/* 状态标签 */
+.tag {
+display: inline-block;
+padding: 2px 8px;
+border-radius: 4px;
+font-size: 10px;
+font-weight: 500;
+}
+
+.tag-long {
+background: rgba(52,168,83,0.15);
+color: #34a853;
+}
+
+.tag-short {
+background: rgba(246,70,93,0.15);
+color: #f6465d;
+}
+
+/* 加载状态 */
+.loading {
+text-align: center;
+padding: 60px;
+color: var(--dim);
+font-size: 12px;
+}
+
+/* 错误状态 */
+.error {
+text-align: center;
+padding: 60px;
+color: #f6465d;
+font-size: 12px;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+body { padding: 10px; }
+.table-box { border-radius: 0; border-left: none; border-right: none; }
+th, td { padding: 10px 8px; font-size: 11px; }
+}
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
-<!-- NAVBAR -->
+<!-- 导航栏 -->
 <nav>
-<a href="index.html" class="nav-logo">HOME</a>
- <ul class="nav-links">
- <li><a href="trader.html">trader</a></li>
- <li><a href="alpha.html">alpha</a></li>
- </ul>
-  <div class="nav-right">
-    <span class="nav-time" id="navTime">21:12</span>
-    <span class="nav-lang">ZH &darr;</span>
-    <button class="nav-theme-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="4"/>
-        <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-      </svg>
-    </button>
-  </div>
+<a href="index.html" class="nav-logo">Web3空投/airdrop</a>
+<div class="nav-links">
+<a href="trader.html">trader</a>
+<a href="alpha.html">alpha</a>
+</div>
 </nav>
 
-<!-- MAIN -->
-<main>
-  <!-- LEFT PANEL -->
-  <div class="left-panel">
-
-    <!-- Site identity -->
-    <div class="site-identity">
-      <div class="site-logo-mark">
-        <svg viewBox="0 0 14 14" fill="none">
-          <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="#000"/>
-        </svg>
-      </div>
-      <span class="site-name">Web3空投/airdrop</span>
-    </div>
-
-    <!-- GOOGLE SHEETS COMPONENT -->
-    <div class="sheets-wrapper">
-      <div class="sheets-toolbar">
-        <div class="sheets-title-row">
-          <div class="sheets-icon">
-            <span></span><span></span>
-          </div>
-          <span class="sheets-doc-name">portfolio_2026.sheets</span>
-        </div>
- <div class="sheets-actions">
- <button class="sheets-btn" id="btnAirdrop">空投</button>
- <button class="sheets-btn" id="btnTrade">交易</button>
- <button class="sheets-btn" id="btnDefi">Defi</button>
- <button class="sheets-btn primary" id="btnCollab">寻求合作</button>
- </div>
-      </div>
-
-      <div class="sheets-container">
-        <!-- Formula bar -->
-        <div class="formula-bar">
-          <div class="cell-ref">B4</div>
-          <div class="formula-fx">fx</div>
-          <div class="formula-input">=SUMIF(D2:D12,"已完成",E2:E12)<span class="cursor-blink"></span></div>
-        </div>
-
-        <!-- Table -->
-        <table class="sheet-table">
-          <thead>
-            <tr class="col-header-row">
-              <th></th>
-              <th>A</th>
-              <th>B</th>
-              <th>C</th>
-              <th>D</th>
-              <th>E</th>
-              <th>F</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="row-num">1</td>
-              <td class="cell-bold">项目名称</td>
-              <td class="cell-bold">类型</td>
-              <td class="cell-bold">技术栈</td>
-              <td class="cell-bold">状态</td>
-              <td class="cell-bold">完成度</td>
-              <td class="cell-bold">年份</td>
-            </tr>
-            <tr class="row-selected">
-              <td class="row-num">2</td>
-              <td>Nexus Dashboard</td>
-              <td><span class="cell-tag tag-blue">Web App</span></td>
-              <td>React / TS</td>
-              <td><span class="cell-tag tag-green">已完成</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:100%"></div></div>
-              </td>
-              <td class="cell-num">2025</td>
-            </tr>
-            <tr>
-              <td class="row-num">3</td>
-              <td>Orbital CMS</td>
-              <td><span class="cell-tag tag-accent">全栈</span></td>
-              <td>Next.js / PG</td>
-              <td><span class="cell-tag tag-green">已完成</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:100%"></div></div>
-              </td>
-              <td class="cell-num">2025</td>
-            </tr>
-            <tr>
-              <td class="row-num">4</td>
-              <td>Lumina AI</td>
-              <td><span class="cell-tag tag-blue">Web App</span></td>
-              <td>Python / Vue</td>
-              <td><span class="cell-tag tag-yellow">进行中</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:68%; background:#fbbc04;"></div></div>
-              </td>
-              <td class="cell-num">2026</td>
-            </tr>
-            <tr>
-              <td class="row-num">5</td>
-              <td>Typecraft</td>
-              <td><span class="cell-tag tag-gray">工具</span></td>
-              <td>Svelte / Rust</td>
-              <td><span class="cell-tag tag-green">已完成</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:100%"></div></div>
-              </td>
-              <td class="cell-num">2024</td>
-            </tr>
-            <tr>
-              <td class="row-num">6</td>
-              <td>Shade Design Sys.</td>
-              <td><span class="cell-tag tag-gray">开源</span></td>
-              <td>CSS / Figma</td>
-              <td><span class="cell-tag tag-yellow">进行中</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:45%; background:#fbbc04;"></div></div>
-              </td>
-              <td class="cell-num">2026</td>
-            </tr>
-            <tr>
-              <td class="row-num">7</td>
-              <td>Voyager Blog</td>
-              <td><span class="cell-tag tag-blue">Web App</span></td>
-              <td>Astro / MDX</td>
-              <td><span class="cell-tag tag-green">已完成</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:100%"></div></div>
-              </td>
-              <td class="cell-num">2024</td>
-            </tr>
-            <tr>
-              <td class="row-num">8</td>
-              <td>DataPulse</td>
-              <td><span class="cell-tag tag-accent">全栈</span></td>
-              <td>Node / Redis</td>
-              <td><span class="cell-tag tag-red">搁置</span></td>
-              <td class="cell-progress">
-                <div class="progress-track"><div class="progress-fill" style="--pct:30%; background:#ea4335;"></div></div>
-              </td>
-              <td class="cell-num">2024</td>
-            </tr>
-            <tr>
-              <td class="row-num">9</td>
-              <td class="cell-formula">=COUNT(A2:A8)</td>
-              <td colspan="3"></td>
-              <td class="cell-num cell-formula">7</td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-
-<!-- Sheet tabs -->
- <div class="sheet-tabs">
- <div class="sheet-tab active">Alpha项目收益</div>
- <div class="sheet-tab">Trader交易</div>
- <div class="sheet-tab">ROI</div>
- <div class="sheet-add">+</div>
- </div>
-      </div>
-    </div>
-
-<!-- Headline -->
- <div class="headline-block">
- <div class="headline">21MxBitcoin LABS<br/><span class="dim">trader alpha</span></div>
- <p class="subline">专注 · 专业 · <span class="gradient-2018">2018</span></p>
- </div>
-
-<!-- CTAs -->
- <div class="cta-row">
- <a href="trader.html" class="btn btn-primary">交易数据</a>
- <a href="alpha.html" class="btn btn-secondary">alpha</a>
- </div>
-  </div>
-
-  <!-- RIGHT PANEL -->
-  <div class="right-panel">
-    <div class="bg-grid"></div>
-    <div class="bg-glow"></div>
-
-    <!-- Float card 1: Stats -->
-    <div class="float-card card-1">
-      <div class="card-label">总项目数</div>
-      <div class="card-value accent">7</div>
-      <div class="card-sub">已交付 &amp; 在产</div>
-      <div class="card-sparkline">
-        <div class="sparkbar" style="height:40%; animation-delay:0.85s;"></div>
-        <div class="sparkbar" style="height:55%; animation-delay:0.9s;"></div>
-        <div class="sparkbar" style="height:45%; animation-delay:0.95s;"></div>
-        <div class="sparkbar" style="height:70%; animation-delay:1s;"></div>
-        <div class="sparkbar" style="height:60%; animation-delay:1.05s;"></div>
-        <div class="sparkbar hi" style="height:90%; animation-delay:1.1s;"></div>
-        <div class="sparkbar hi" style="height:100%; animation-delay:1.15s;"></div>
-      </div>
-    </div>
-
-<!-- Float card 2: Recent activity -->
- <div class="float-card card-2">
- <div class="card-label">近期更新</div>
- <div class="card-divider"></div>
- <div class="card-row">
- <span class="card-row-label">BTC Long</span>
- <span class="card-row-val pos">+12%</span>
- </div>
- <div class="card-row">
- <span class="card-row-label">ETH Short</span>
- <span class="card-row-val pos">+8%</span>
- </div>
- <div class="card-row">
- <span class="card-row-label">SOL Position</span>
- <span class="card-row-val neg">搁置</span>
- </div>
- </div>
-
-<!-- Float card 3: Status chip -->
- <div class="float-card card-3">
- <div class="card-label">当前状态</div>
- <div class="card-value" style="font-size:16px; margin-top:6px; color: var(--accent);">交易中</div>
- <div class="card-sub" style="margin-top:4px;">Active Trading &bull; 2026</div>
- </div>
-  </div>
-</main>
-
-<!-- Scroll hint -->
-<div class="scroll-hint">
-  <div class="scroll-line"></div>
+<!-- 标题 -->
+<div class="header-section">
+<h2 id="sheet-title">DASHBOARD</h2>
+<span class="data-source">DATA: trade_data.json</span>
 </div>
 
-<!-- Status bar -->
-<div class="status-bar">
- <span class="status-item online">在线</span>
- <span class="status-item" id="currentDate">--</span>
- <span class="status-item" style="margin-left:auto; font-family: 'DM Mono', monospace;">21MxBitcoin LABS</span>
+<!-- 表格容器 -->
+<div class="table-box">
+<table>
+<thead id="h-head"></thead>
+<tbody id="h-body"></tbody>
+</table>
 </div>
 
 <script>
-  // Custom cursor
-  const cursor = document.getElementById('cursor');
-  const ring   = document.getElementById('cursorRing');
-  let mx = 0, my = 0, rx = 0, ry = 0;
+// 数据文件路径 - 使用交易数据
+const DATA_PATH = './data/trade_data.json';
 
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    cursor.style.left = mx + 'px';
-    cursor.style.top  = my + 'px';
-  });
+async function init() {
+const thead = document.getElementById('h-head');
+const tbody = document.getElementById('h-body');
 
-  (function animRing() {
-    rx += (mx - rx) * 0.12;
-    ry += (my - ry) * 0.12;
-    ring.style.left = rx + 'px';
-    ring.style.top  = ry + 'px';
-    requestAnimationFrame(animRing);
-  })();
+try {
+const res = await fetch(DATA_PATH);
+if (!res.ok) throw new Error('数据加载失败');
+const json = await res.json();
 
-  document.querySelectorAll('a, button, .sheet-tab, .sheets-btn, .nav-lang').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.width  = '16px';
-      cursor.style.height = '16px';
-      ring.style.width    = '48px';
-      ring.style.height   = '48px';
-      ring.style.borderColor = 'rgba(184,255,87,0.5)';
-    });
-    el.addEventListener('mouseleave', () => {
-      cursor.style.width  = '8px';
-      cursor.style.height = '8px';
-      ring.style.width    = '32px';
-      ring.style.height   = '32px';
-      ring.style.borderColor = 'rgba(255,255,255,0.4)';
-    });
-  });
+// 设置标题
+document.getElementById('sheet-title').innerText = 'TRADING RECORDS';
 
-  // Live clock
-  const timeEl = document.getElementById('navTime');
-  function updateTime() {
-    const d = new Date();
-    const h = String(d.getHours()).padStart(2,'0');
-    const m = String(d.getMinutes()).padStart(2,'0');
-    timeEl.textContent = h + ':' + m;
-  }
-  updateTime();
-  setInterval(updateTime, 10000);
+// 定义表头
+thead.innerHTML = `
+<tr>
+<th>交易对</th>
+<th>方向</th>
+<th>收益率</th>
+<th>盈亏</th>
+<th>开仓价</th>
+<th>当前价</th>
+<th>杠杆</th>
+<th>日期</th>
+</tr>
+`;
 
-// Row hover highlight in sheet
- document.querySelectorAll('.sheet-table tbody tr').forEach(tr => {
- tr.addEventListener('mouseenter', function() {
- document.querySelectorAll('.row-selected').forEach(r => {
- if(r !== this) r.classList.remove('row-selected');
- });
- this.classList.add('row-selected');
- });
- });
+// 清空tbody
+tbody.innerHTML = '';
 
- // Status bar: Current Date
- const dateEl = document.getElementById('currentDate');
+// 渲染数据行 - 最多显示9行
+json.slice(0, 9).forEach((item, index) => {
+const tr = document.createElement('tr');
 
- function updateDate() {
- // Current date: YYYY-MM-DD format
- const now = new Date();
- const year = now.getFullYear();
- const month = String(now.getMonth() + 1).padStart(2, '0');
- const day = String(now.getDate()).padStart(2, '0');
- dateEl.textContent = `${year}-${month}-${day}`;
- }
+// 解析数据
+const symbol = item.symbol || '--';
+const side = item.side || '--';
+const pnl = item.pnl || '0%';
+const profit = item.profit || '--';
+const entry = item.entry || '--';
+const last = item.last || '--';
+const lev = item.lev || '--';
+const time = item.time ? new Date(item.time).toLocaleDateString('zh-CN', {
+day: '2-digit', month: '2-digit', year: 'numeric'
+}) : new Date().toLocaleDateString('zh-CN', {
+day: '2-digit', month: '2-digit', year: 'numeric'
+});
 
- updateDate();
- setInterval(updateDate, 1000);
+// 判断正负
+const pnlNum = parseFloat(pnl);
+const isPositive = pnlNum >= 0;
+const profitNum = parseFloat(profit);
+const isProfitPositive = profitNum >= 0;
 
- // Sheet toolbar buttons
+// 方向标签
+const sideClass = side === 'LONG' ? 'tag-long' : 'tag-short';
+const sideText = side === 'LONG' ? '做多' : '做空';
 
-// Helper function to create modal
-function createModal(title, content) {
- const modal = document.createElement('div');
- modal.style.cssText = `
- position: fixed;
- inset: 0;
- background: rgba(0,0,0,0.85);
- backdrop-filter: blur(10px);
- z-index: 10000;
- display: flex;
- align-items: center;
- justify-content: center;
- cursor: default;
- padding: 20px;
- `;
- modal.innerHTML = `
- <div style="
- background: #0a0a0a;
- border: 1px solid rgba(184,255,87,0.25);
- border-radius: 12px;
- width: 90%;
- max-width: 600px;
- max-height: 80vh;
- overflow-y: auto;
- font-family: 'DM Mono', monospace;
- ">
- <div style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.07);">
- <h3 style="color: #b8ff57; margin: 0; font-size: 16px; text-align: center;">${title}</h3>
- </div>
- <div style="padding: 24px;">
- ${content}
- </div>
- <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: center;">
- <button onclick="this.closest('.modal-overlay').remove()" style="
- padding: 10px 32px;
- background: transparent;
- color: #b8ff57;
- border: 1px solid rgba(184,255,87,0.3);
- border-radius: 6px;
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- cursor: pointer;
- transition: all 0.2s;
- ">关闭</button>
- </div>
- </div>
- `;
- modal.classList.add('modal-overlay');
- document.body.appendChild(modal);
- modal.addEventListener('click', (e) => {
- if (e.target === modal) modal.remove();
- });
+tr.innerHTML = `
+<td>${symbol}</td>
+<td><span class="tag ${sideClass}">${sideText}</span></td>
+<td class="${isPositive ? 'positive' : ''}">${pnl}</td>
+<td class="${isProfitPositive ? 'positive' : ''}">${profit} USDT</td>
+<td>${entry}</td>
+<td>${last}</td>
+<td>${lev}</td>
+<td style="color: #888;">${time}</td>
+`;
+
+tbody.appendChild(tr);
+});
+
+// 如果数据超过9行，显示锁定行
+if (json.length > 9) {
+const lockedRow = document.createElement('tr');
+lockedRow.className = 'locked-row';
+lockedRow.innerHTML = `<td colspan="8">🔒 RESTRICTED DATA: RECENT 9 ITEMS ONLY (${json.length - 9} MORE HIDDEN)</td>`;
+tbody.appendChild(lockedRow);
 }
 
-// 1. 空投 - 年度项目空投收益列表
-document.getElementById('btnAirdrop')?.addEventListener('click', () => {
- const currentYear = new Date().getFullYear();
- const content = `
- <div style="font-family: 'DM Mono', monospace; font-size: 12px;">
- <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px; background: rgba(184,255,87,0.05); border-radius: 6px;">
- <span style="color: #666;">统计年度</span>
- <span style="color: #b8ff57; font-size: 18px; font-weight: 600;">${currentYear}</span>
- </div>
- <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
- <thead>
- <tr style="background: rgba(255,255,255,0.03);">
- <th style="padding: 10px; text-align: left; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">项目名称</th>
- <th style="padding: 10px; text-align: left; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">代币</th>
- <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">数量</th>
- <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">价值(USD)</th>
- </tr>
- </thead>
- <tbody>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">Arbitrum ARB</td>
- <td style="padding: 10px; color: #aaa;">ARB</td>
- <td style="padding: 10px; text-align: right; color: #fff;">1,250</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$1,875</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">Optimism OP</td>
- <td style="padding: 10px; color: #aaa;">OP</td>
- <td style="padding: 10px; text-align: right; color: #fff;">850</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$1,445</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">Celestia TIA</td>
- <td style="padding: 10px; color: #aaa;">TIA</td>
- <td style="padding: 10px; text-align: right; color: #fff;">420</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$2,520</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">Starknet STRK</td>
- <td style="padding: 10px; color: #aaa;">STRK</td>
- <td style="padding: 10px; text-align: right; color: #fff;">2,100</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$2,940</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">ZkSync ZK</td>
- <td style="padding: 10px; color: #aaa;">ZK</td>
- <td style="padding: 10px; text-align: right; color: #fff;">3,500</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$1,750</td>
- </tr>
- </tbody>
- <tfoot>
- <tr style="background: rgba(184,255,87,0.08);">
- <td colspan="3" style="padding: 12px; text-align: right; color: #b8ff57; font-weight: 600;">年度总收益</td>
- <td style="padding: 12px; text-align: right; color: #b8ff57; font-weight: 600;">$10,530</td>
- </tr>
- </tfoot>
- </table>
- </div>
- `;
- createModal('年度空投收益统计', content);
-});
+} catch (err) {
+console.error('数据加载失败:', err);
+tbody.innerHTML = `
+<tr>
+<td colspan="8" class="error">
+数据加载失败: ${err.message}<br>
+请检查 data/trade_data.json 文件是否存在
+</td>
+</tr>
+`;
+}
+}
 
-// 2. 交易 - 年度交易收益列表
-document.getElementById('btnTrade')?.addEventListener('click', () => {
- const currentYear = new Date().getFullYear();
- const content = `
- <div style="font-family: 'DM Mono', monospace; font-size: 12px;">
- <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px; background: rgba(184,255,87,0.05); border-radius: 6px;">
- <span style="color: #666;">统计年度</span>
- <span style="color: #b8ff57; font-size: 18px; font-weight: 600;">${currentYear}</span>
- </div>
- <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
- <thead>
- <tr style="background: rgba(255,255,255,0.03);">
- <th style="padding: 10px; text-align: left; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">交易对</th>
- <th style="padding: 10px; text-align: center; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">方向</th>
- <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">收益率</th>
- <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">收益(USD)</th>
- </tr>
- </thead>
- <tbody>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">BTC/USDT</td>
- <td style="padding: 10px; text-align: center;"><span style="color: #34a853;">LONG</span></td>
- <td style="padding: 10px; text-align: right; color: #34a853;">+156%</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">+$15,600</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">ETH/USDT</td>
- <td style="padding: 10px; text-align: center;"><span style="color: #f6465d;">SHORT</span></td>
- <td style="padding: 10px; text-align: right; color: #34a853;">+89%</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">+$8,900</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">SOL/USDT</td>
- <td style="padding: 10px; text-align: center;"><span style="color: #34a853;">LONG</span></td>
- <td style="padding: 10px; text-align: right; color: #34a853;">+234%</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">+$23,400</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">BNB/USDT</td>
- <td style="padding: 10px; text-align: center;"><span style="color: #34a853;">LONG</span></td>
- <td style="padding: 10px; text-align: right; color: #34a853;">+67%</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">+$6,700</td>
- </tr>
- </tbody>
- <tfoot>
- <tr style="background: rgba(184,255,87,0.08);">
- <td colspan="3" style="padding: 12px; text-align: right; color: #b8ff57; font-weight: 600;">年度交易总收益</td>
- <td style="padding: 12px; text-align: right; color: #b8ff57; font-weight: 600;">+$54,600</td>
- </tr>
- </tfoot>
- </table>
- </div>
- `;
- createModal('年度交易收益统计', content);
-});
-
-// 3. Defi/Alpha - 年度Alpha收益列表
-document.getElementById('btnDefi')?.addEventListener('click', () => {
- const currentYear = new Date().getFullYear();
- const content = `
- <div style="font-family: 'DM Mono', monospace; font-size: 12px;">
- <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px; background: rgba(184,255,87,0.05); border-radius: 6px;">
- <span style="color: #666;">统计年度</span>
- <span style="color: #b8ff57; font-size: 18px; font-weight: 600;">${currentYear}</span>
- </div>
- <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
- <thead>
- <tr style="background: rgba(255,255,255,0.03);">
- <th style="padding: 10px; text-align: left; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">策略类型</th>
- <th style="padding: 10px; text-align: left; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">协议</th>
- <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">APY</th>
- <th style="padding: 10px; text-align: right; color: #666; border-bottom: 1px solid rgba(255,255,255,0.1);">收益(USD)</th>
- </tr>
- </thead>
- <tbody>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">Staking</td>
- <td style="padding: 10px; color: #aaa;">Lido ETH</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">3.8%</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$1,900</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">LP Yield</td>
- <td style="padding: 10px; color: #aaa;">GMX GLP</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">22.4%</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$11,200</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">Lending</td>
- <td style="padding: 10px; color: #aaa;">Aave V3</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">14.2%</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$7,100</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
- <td style="padding: 10px; color: #fff;">Yield Token</td>
- <td style="padding: 10px; color: #aaa;">Pendle YT</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">18.6%</td>
- <td style="padding: 10px; text-align: right; color: #34a853;">$9,300</td>
- </tr>
- </tbody>
- <tfoot>
- <tr style="background: rgba(184,255,87,0.08);">
- <td colspan="3" style="padding: 12px; text-align: right; color: #b8ff57; font-weight: 600;">年度Alpha总收益</td>
- <td style="padding: 12px; text-align: right; color: #b8ff57; font-weight: 600;">$29,500</td>
- </tr>
- </tfoot>
- </table>
- </div>
- `;
- createModal('年度Alpha收益统计', content);
-});
-
-// 4. 寻求合作 - 社交媒体空白信息表单
-document.getElementById('btnCollab')?.addEventListener('click', () => {
- const content = `
- <div style="font-family: 'DM Mono', monospace; font-size: 12px;">
- <p style="color: #666; margin-bottom: 20px; text-align: center;">填写您的联系方式，我们会尽快与您取得联系</p>
- <form id="contactForm" style="display: flex; flex-direction: column; gap: 16px;">
- <div style="display: flex; flex-direction: column; gap: 6px;">
- <label style="color: #888; font-size: 11px;">X (Twitter)</label>
- <input type="text" placeholder="@username" style="
- background: rgba(255,255,255,0.03);
- border: 1px solid rgba(255,255,255,0.1);
- border-radius: 6px;
- padding: 12px;
- color: #fff;
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- outline: none;
- ">
- </div>
- <div style="display: flex; flex-direction: column; gap: 6px;">
- <label style="color: #888; font-size: 11px;">Telegram</label>
- <input type="text" placeholder="t.me/username" style="
- background: rgba(255,255,255,0.03);
- border: 1px solid rgba(255,255,255,0.1);
- border-radius: 6px;
- padding: 12px;
- color: #fff;
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- outline: none;
- ">
- </div>
- <div style="display: flex; flex-direction: column; gap: 6px;">
- <label style="color: #888; font-size: 11px;">WeChat</label>
- <input type="text" placeholder="微信号" style="
- background: rgba(255,255,255,0.03);
- border: 1px solid rgba(255,255,255,0.1);
- border-radius: 6px;
- padding: 12px;
- color: #fff;
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- outline: none;
- ">
- </div>
- <div style="display: flex; flex-direction: column; gap: 6px;">
- <label style="color: #888; font-size: 11px;">Discord</label>
- <input type="text" placeholder="username#0000" style="
- background: rgba(255,255,255,0.03);
- border: 1px solid rgba(255,255,255,0.1);
- border-radius: 6px;
- padding: 12px;
- color: #fff;
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- outline: none;
- ">
- </div>
- <div style="display: flex; flex-direction: column; gap: 6px;">
- <label style="color: #888; font-size: 11px;">邮箱</label>
- <input type="email" placeholder="email@example.com" style="
- background: rgba(255,255,255,0.03);
- border: 1px solid rgba(255,255,255,0.1);
- border-radius: 6px;
- padding: 12px;
- color: #fff;
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- outline: none;
- ">
- </div>
- <div style="display: flex; flex-direction: column; gap: 6px;">
- <label style="color: #888; font-size: 11px;">合作意向</label>
- <textarea placeholder="请简要描述您的合作意向..." rows="3" style="
- background: rgba(255,255,255,0.03);
- border: 1px solid rgba(255,255,255,0.1);
- border-radius: 6px;
- padding: 12px;
- color: #fff;
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- outline: none;
- resize: vertical;
- "></textarea>
- </div>
- <button type="submit" style="
- margin-top: 8px;
- padding: 12px;
- background: #b8ff57;
- color: #000;
- border: none;
- border-radius: 6px;
- font-family: 'DM Mono', monospace;
- font-size: 12px;
- font-weight: 600;
- cursor: pointer;
- ">提交</button>
- </form>
- </div>
- `;
- createModal('寻求合作', content);
- 
- // 表单提交处理
- setTimeout(() => {
- document.getElementById('contactForm')?.addEventListener('submit', (e) => {
- e.preventDefault();
- alert('感谢您的提交！我们会尽快与您联系。');
- document.querySelector('.modal-overlay')?.remove();
- });
- }, 100);
-});
-
- // 年份自动更新：从2026开始，每年+1
- function updateYear() {
- const startYear = 2026;
- const currentYear = new Date().getFullYear();
- const yearOffset = currentYear - startYear;
- const displayYear = startYear + yearOffset;
- 
- // 更新文档名中的年份
- const docName = document.querySelector('.sheets-doc-name');
- if (docName) {
- docName.textContent = `portfolio_${displayYear}.sheets`;
- }
- }
- updateYear();
+init();
 </script>
+
 </body>
 </html>
