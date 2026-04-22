@@ -1202,9 +1202,13 @@ function renderTraderData(data, tbody) {
  const profitNum = parseFloat(item.profit) || 0;
  const isPositive = pnlNum >= 0;
  const isProfitPositive = profitNum >= 0;
- const date = item.time ? new Date(item.time).toLocaleDateString('zh-CN', {
- day: '2-digit', month: '2-digit', year: 'numeric'
- }) : '--';
+    const date = item.time 
+      ? new Date(item.time).toLocaleDateString('zh-CN', {
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        }) 
+      : new Date().toLocaleDateString('zh-CN', {
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        });
  
     tr.innerHTML = `
       <td class="row-num">${index + 2}</td>
