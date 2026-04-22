@@ -1257,6 +1257,9 @@ function generateMockCurve(isLong, isProfit, points, entryPrice) {
  // 页面加载完成运行
  window.onload = renderTraderCards;
 
+ // 自动刷新数据 - 每30秒刷新一次
+ setInterval(renderTraderCards, 30000);
+
  // 显示历史记录
  async function showHistory(symbol) {
  const url = symbol 
