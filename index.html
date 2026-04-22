@@ -1163,26 +1163,25 @@ function renderAirdropData(json, tbody) {
 
 // Trader 数据渲染（trade_data.json格式）
 function renderTraderData(data, tbody) {
- // Trader 数据是数组格式
- const rows = Array.isArray(data) ? data : [];
- 
- // 表头行 (第1行)
- const headerRow = document.createElement('tr');
- headerRow.innerHTML = `
- <td class="row-num">1</td>
- <td class="cell-bold">日期</td>
- <td class="cell-bold">交易对</td>
- <td class="cell-bold">方向</td>
- <td class="cell-bold">收益率</td>
- <td class="cell-bold">盈亏</td>
- <td class="cell-bold">开仓价</td>
- <td class="cell-bold">当前价</td>
- <td class="cell-bold">杠杆</td>
- 
- `;
- tbody.appendChild(headerRow);
- 
- // 按收益率排序
+  // Trader 数据是数组格式
+  const rows = Array.isArray(data) ? data : [];
+  
+  // 表头行 (第1行)
+  const headerRow = document.createElement('tr');
+  headerRow.innerHTML = `
+    <td class="row-num">1</td>
+    <td class="cell-bold" style="width: 90px; min-width: 90px;">日期</td>
+    <td class="cell-bold" style="width: 70px; min-width: 70px;">交易对</td>
+    <td class="cell-bold" style="width: 50px; min-width: 50px;">方向</td>
+    <td class="cell-bold" style="width: 60px; min-width: 60px;">收益率</td>
+    <td class="cell-bold" style="width: 70px; min-width: 70px;">盈亏</td>
+    <td class="cell-bold" style="width: 70px; min-width: 70px;">开仓价</td>
+    <td class="cell-bold" style="width: 80px; min-width: 80px;">当前价</td>
+    <td class="cell-bold" style="width: 50px; min-width: 50px;">杠杆</td>
+  `;
+  tbody.appendChild(headerRow);
+
+  // 按收益率排序
  const sortedRows = rows.sort((a, b) => {
  const pnlA = parseFloat(a.pnl) || 0;
  const pnlB = parseFloat(b.pnl) || 0;
@@ -1209,29 +1208,35 @@ function renderTraderData(data, tbody) {
  
     tr.innerHTML = `
       <td class="row-num">${index + 2}</td>
-      <td style="color: #888;">${date}</td>
-      <td>${item.symbol || '--'}</td>
-      <td><span class="cell-tag ${item.side === 'LONG' ? 'tag-green' : 'tag-red'}">${item.side || '--'}</span></td>
-      <td style="color: ${isPositive ? '#34a853' : '#ea4335'}">${item.pnl || '--'}</td>
-      <td style="color: ${isProfitPositive ? '#34a853' : '#ea4335'}">$${item.profit || '--'}</td>
-      <td>${item.entry || '--'}</td>
-      <td>${item.last || '--'}</td>
-      <td>${item.lev || '--'}X</td>
+      <td style="color: #888; width: 90px; min-width: 90px;">${date}</td>
+      <td style="width: 70px; min-width: 70px;">${item.symbol || '--'}</td>
+      <td style="width: 50px; min-width: 50px;"><span class="cell-tag ${item.side === 'LONG' ? 'tag-green' : 'tag-red'}">${item.side || '--'}</span></td>
+      <td style="color: ${isPositive ? '#34a853' : '#ea4335'}; width: 60px; min-width: 60px;">${item.pnl || '--'}</td>
+      <td style="color: ${isProfitPositive ? '#34a853' : '#ea4335'}; width: 70px; min-width: 70px;">$${item.profit || '--'}</td>
+      <td style="width: 70px; min-width: 70px;">${item.entry || '--'}</td>
+      <td style="width: 80px; min-width: 80px;">${item.last || '--'}</td>
+      <td style="width: 50px; min-width: 50px;">${item.lev || '--'}X</td>
     `;
  tbody.appendChild(tr);
  });
  
- // 填充空行（如果数据不足9行）
- for (let i = 0; i < emptyRowsNeeded; i++) {
- const emptyRow = document.createElement('tr');
- const rowNum = displayData.length + i + 2;
- let emptyHTML = `<td class="row-num">${rowNum}</td>`;
- for (let j = 0; j < 8; j++) {
- emptyHTML += `<td style="color: #333;">-</td>`;
- }
- emptyRow.innerHTML = emptyHTML;
- tbody.appendChild(emptyRow);
- }
+  // 填充空行（如果数据不足9行）
+  for (let i = 0; i < emptyRowsNeeded; i++) {
+    const emptyRow = document.createElement('tr');
+    const rowNum = displayData.length + i + 2;
+    emptyRow.innerHTML = `
+      <td class="row-num">${rowNum}</td>
+      <td style="color: #333; width: 90px; min-width: 90px;">-</td>
+      <td style="color: #333; width: 70px; min-width: 70px;">-</td>
+      <td style="color: #333; width: 50px; min-width: 50px;">-</td>
+      <td style="color: #333; width: 60px; min-width: 60px;">-</td>
+      <td style="color: #333; width: 70px; min-width: 70px;">-</td>
+      <td style="color: #333; width: 70px; min-width: 70px;">-</td>
+      <td style="color: #333; width: 80px; min-width: 80px;">-</td>
+      <td style="color: #333; width: 50px; min-width: 50px;">-</td>
+    `;
+    tbody.appendChild(emptyRow);
+  }
  
  // 锁定行 - 固定放在第10行位置
  const lockedRow = document.createElement('tr');
