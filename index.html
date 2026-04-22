@@ -1207,17 +1207,17 @@ function renderTraderData(data, tbody) {
  day: '2-digit', month: '2-digit', year: 'numeric'
  }) : '--';
  
- tr.innerHTML = `
- <td class="row-num">${index + 2}</td>
- <td>${item.symbol || '--'}</td>
- <td><span class="cell-tag ${item.side === 'LONG' ? 'tag-green' : 'tag-red'}">${item.side || '--'}</span></td>
- <td style="color: ${isPositive ? '#34a853' : '#ea4335'}">${item.pnl || '--'}</td>
- <td style="color: ${isProfitPositive ? '#34a853' : '#ea4335'}">$${item.profit || '--'}</td>
- <td>${item.entry || '--'}</td>
- <td>${item.last || '--'}</td>
- <td>${item.lev || '--'}X</td>
- <td style="color: #888;">${date}</td>
- `;
+    tr.innerHTML = `
+      <td class="row-num">${index + 2}</td>
+      <td style="color: #888;">${date}</td>
+      <td>${item.symbol || '--'}</td>
+      <td><span class="cell-tag ${item.side === 'LONG' ? 'tag-green' : 'tag-red'}">${item.side || '--'}</span></td>
+      <td style="color: ${isPositive ? '#34a853' : '#ea4335'}">${item.pnl || '--'}</td>
+      <td style="color: ${isProfitPositive ? '#34a853' : '#ea4335'}">$${item.profit || '--'}</td>
+      <td>${item.entry || '--'}</td>
+      <td>${item.last || '--'}</td>
+      <td>${item.lev || '--'}X</td>
+    `;
  tbody.appendChild(tr);
  });
  
